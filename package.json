@@ -1,0 +1,49 @@
+{
+  "name": "vaf-bg-ai-lab",
+  "version": "1.0.0",
+  "description": "AI driven experimental app prototype named Brainograph AI Lab powered by VAF",
+  "main": "index.js",
+  "homepage": "https://lorsabyan.github.io/vaf-bg-ai-lab",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lorsabyan/vaf-bg-ai-lab.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lorsabyan/vaf-bg-ai-lab/issues"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-scripts": "^5.0.1",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "gh-pages": "^6.3.0",
+    "postcss": "^8.5.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
