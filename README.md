@@ -1,6 +1,8 @@
 # Brainograph AI Lab - VAF Educational Platform
 
-An AI-driven React.js application that combines article exploration and quiz generation functionality. Built for the VAF (Vartan Ambartsoumian Foundation) educational platform.
+🚀 **[Live Demo](https://lorsabyan.github.io/vaf-bg-ai-lab)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
+
+An AI-driven React.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
 
 ## Features
 
@@ -222,4 +224,4 @@ For support and questions:
 
 ---
 
-Built with ❤️ for the VAF Educational Platform
+Built with ❤️ for the [VAF Educational Platform](https://visualarmenia.org/)

@@ -4,6 +4,8 @@
 
 **Live Application**: <https://lorsabyan.github.io/vaf-bg-ai-lab>
 
+Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
+
 ---
 
 ## 📋 ORIGINAL REQUIREMENTS ✅

@@ -136,12 +136,17 @@ function LoginForm() {
             'Մուտք գործել'
           )}
         </button>
-      </form>
-
-      <div className="mt-8 text-center">
+      </form>      <div className="mt-8 text-center">
         <p className="text-sm text-gray-500">
           Powered by{' '}
-          <span className="font-semibold text-sky-600">VAF</span>
+          <a 
+            href="https://visualarmenia.org/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="font-semibold text-sky-600 hover:text-sky-700 transition-colors"
+          >
+            VAF
+          </a>
         </p>
       </div>
     </div>
