@@ -61,7 +61,9 @@ i18n
   })
   .then(() => {
     // Check if there's a stored language preference
-    const storedLanguage = localStorage.getItem('selectedLanguage');
+    const storedLanguage = typeof window !== 'undefined' && window.localStorage 
+      ? localStorage.getItem('selectedLanguage') 
+      : null;
     const currentLang = i18n.language;
     const availableLanguages = Object.keys(resources);
     

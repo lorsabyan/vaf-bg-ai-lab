@@ -40,17 +40,25 @@ class AuthService {
   }
 
   async signOut() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('userEmail');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userEmail');
+    }
     return { success: true };
   }
 
   getStoredToken() {
-    return localStorage.getItem('accessToken');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('accessToken');
+    }
+    return null;
   }
 
   getStoredEmail() {
-    return localStorage.getItem('userEmail');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return localStorage.getItem('userEmail');
+    }
+    return null;
   }
 }
 

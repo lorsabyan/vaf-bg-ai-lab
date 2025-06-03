@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
+// Helper function to safely access localStorage
+const getFromLocalStorage = (key, defaultValue = '') => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return localStorage.getItem(key) || defaultValue;
+  }
+  return defaultValue;
+};
+
 // Initial state
 const initialState = {
   // Authentication
@@ -25,7 +33,7 @@ const initialState = {
   
   // API configuration
   apiKeys: {
-    gemini: localStorage.getItem('geminiApiKey') || '',
+    gemini: '',
   },  // UI state
   sidebarOpen: false,
   activeTab: 'explorer', // Only 'explorer' now - quiz removed
@@ -167,7 +175,10 @@ function appReducer(state, action) {
         ...state.apiKeys,
         [action.payload.type]: action.payload.key
       };
-      localStorage.setItem(`${action.payload.type}ApiKey`, action.payload.key);
+      // Safely store to localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(`${action.payload.type}ApiKey`, action.payload.key);
+      }
       return {
         ...state,
         apiKeys: newApiKeys
@@ -255,14 +266,25 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Check for existing auth token on mount
+  // Initialize localStorage values after component mounts
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    // Initialize API keys from localStorage
+    const geminiKey = getFromLocalStorage('geminiApiKey');
+    if (geminiKey) {
+      dispatch({
+        type: ActionTypes.SET_API_KEY,
+        payload: { type: 'gemini', key: geminiKey }
+      });
+    }
+
+    // Check for existing auth token
+    const token = getFromLocalStorage('accessToken');
+    const userEmail = getFromLocalStorage('userEmail');
     if (token) {
       dispatch({
         type: ActionTypes.SET_AUTH,
         payload: {
-          user: { email: localStorage.getItem('userEmail') || '' },
+          user: { email: userEmail || '' },
           accessToken: token
         }
       });

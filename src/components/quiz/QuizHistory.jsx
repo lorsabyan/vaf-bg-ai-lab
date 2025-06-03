@@ -25,7 +25,9 @@ const QuizHistory = () => {
 
   const loadQuizHistory = () => {
     try {
-      const saved = localStorage.getItem('quiz_history');
+      const saved = typeof window !== 'undefined' && window.localStorage 
+        ? localStorage.getItem('quiz_history') 
+        : null;
       if (saved) {
         const history = JSON.parse(saved);
         setQuizHistory(history.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)));

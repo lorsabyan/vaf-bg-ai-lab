@@ -1,8 +1,10 @@
 # Brainograph AI Lab - VAF Educational Platform
 
+> **🎉 Recently migrated from Create React App to Next.js for improved performance and static site generation!**
+
 🚀 **[Live Demo](https://lorsabyan.github.io/vaf-bg-ai-lab)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
 
-An AI-driven React.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
+An AI-driven Next.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
 
 ## Features
 
@@ -43,12 +45,12 @@ An AI-driven React.js application that combines article exploration and quiz gen
 
 ## Technology Stack
 
-- **Frontend**: React.js 19 with functional components and hooks
+- **Frontend**: Next.js 14 with React 18 functional components and hooks
 - **Styling**: TailwindCSS 3 for responsive design
 - **AI Integration**: Google Generative AI (Gemini) SDK
 - **State Management**: React Context API with useReducer
-- **Build Tool**: Create React App
-- **Deployment**: GitHub Pages ready
+- **Build Tool**: Next.js with static site generation
+- **Deployment**: GitHub Pages ready with optimized static export
 
 ## Getting Started
 
@@ -75,10 +77,10 @@ An AI-driven React.js application that combines article exploration and quiz gen
 3. **Start development server**:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
-4. **Open in browser**: Navigate to `http://localhost:3000/vaf-bg-ai-lab`
+4. **Open in browser**: Navigate to `http://localhost:3000`
 
 ### Deployment
 
