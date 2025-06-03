@@ -7,9 +7,10 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import QuizModal from '../quiz/QuizModal';
 import QuizInterfacePage from '../quiz/QuizInterfacePage';
+import ArticleToolbar from './ArticleToolbar';
 
 function ArticleViewer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [isExplaining, setIsExplaining] = useState(false);
   const [selectedText, setSelectedText] = useState('');
@@ -19,6 +20,10 @@ function ArticleViewer() {
   const [showKeyPointsModal, setShowKeyPointsModal] = useState(false);
   const [keyPoints, setKeyPoints] = useState('');
   const [isLoadingKeyPoints, setIsLoadingKeyPoints] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState(null);
+  const [isShowingTranslation, setIsShowingTranslation] = useState(false);
+  const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
   
   const articleRef = useRef(null);
   const tooltipRef = useRef(null);
@@ -30,9 +35,14 @@ function ArticleViewer() {
     setShowTooltip(false);
     setSelectedText('');
     setExplanation('');
+    setTranslatedContent(null);
+    setIsShowingTranslation(false);
+    setIsSelectMode(false);
   }, [state.selectedArticle]);
 
   const handleTextSelection = async () => {
+    if (!isSelectMode) return;
+    
     const selection = window.getSelection();
     const selectedTerm = selection.toString().trim();
     
@@ -62,9 +72,13 @@ function ArticleViewer() {
     setExplanation(t('articleViewer.loading.explanation'));
 
     try {
+      const contentToUse = isShowingTranslation ? 
+        (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
+        (formattedContent?.plainText || '');
+        
       const result = await quizService.explainTerm(
         selectedTerm,
-        formattedContent?.plainText || '',
+        contentToUse,
         state.apiKeys.gemini
       );
 
@@ -139,6 +153,109 @@ ${t('articleViewer.prompts.keyPointsInstructions')}`;
       setIsLoadingKeyPoints(false);
     }
   };
+  const handleTranslate = async () => {
+    if (!formattedContent?.html) {
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: t('articleViewer.errors.noArticleSelected')
+      });
+      return;
+    }
+
+    if (!state.apiKeys.gemini) {
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: t('articleViewer.errors.apiKeyRequired')
+      });
+      return;
+    }
+
+    // If already showing translation, toggle back to original
+    if (isShowingTranslation) {
+      setIsShowingTranslation(false);
+      return;
+    }
+
+    // If translation already exists, show it
+    if (translatedContent) {
+      setIsShowingTranslation(true);
+      return;
+    }
+
+    setIsLoadingTranslation(true);
+
+    try {
+      if (!quizService.genAI) {
+        quizService.initializeAPI(state.apiKeys.gemini);
+      }
+
+      const generativeModel = quizService.genAI.getGenerativeModel({ 
+        model: 'gemini-2.5-flash-preview-05-20' 
+      });
+
+      // Enhanced translation prompt with detailed instructions
+      const translationPrompt = `You are a professional translator with expertise in preserving HTML formatting. Your task is to translate the following article content to ${t(`language.languages.${state.selectedLanguage}`)}.
+
+CRITICAL REQUIREMENTS:
+1. Maintain ALL HTML tags, attributes, and structure exactly as they appear
+2. Only translate the text content within HTML tags
+3. Preserve all class names, IDs, styles, and attributes
+4. Keep HTML entities and special characters intact
+5. Maintain the exact spacing and formatting structure
+6. Do not add any markdown formatting or extra tags
+7. Translate naturally while preserving the original meaning and tone
+
+Article content to translate:
+${formattedContent.html}
+
+Please provide the translation with the exact same HTML structure, translating only the text content within the tags.`;
+
+      const result = await generativeModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: translationPrompt }] }],
+        generationConfig: { 
+          temperature: 0.1,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 8192
+        },
+      });
+
+      const response = await result.response;
+      let translatedText = response.text();
+
+      if (translatedText) {
+        // Clean up response (remove markdown formatting if present)
+        translatedText = translatedText.replace(/^```html\s*|\s*```$/g, '');
+        translatedText = translatedText.replace(/^```\s*|\s*```$/g, '');
+        
+        // Validate that the response contains HTML
+        if (translatedText.includes('<') && translatedText.includes('>')) {
+          setTranslatedContent(translatedText);
+          setIsShowingTranslation(true);
+        } else {
+          throw new Error('Translation response does not contain valid HTML');
+        }
+      } else {
+        throw new Error('Empty translation response');
+      }
+    } catch (error) {
+      console.error('Error translating article:', error);
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: t('articleViewer.errors.translationError', { error: error.message })
+      });
+    } finally {
+      setIsLoadingTranslation(false);
+    }
+  };
+  
+  const handleSelectAndExplain = (enabled) => {
+    setIsSelectMode(enabled);
+    if (!enabled) {
+      setShowTooltip(false);
+    }
+  };
+
   const handleClickOutside = (event) => {
     if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
       setShowTooltip(false);
@@ -195,32 +312,23 @@ ${t('articleViewer.prompts.keyPointsInstructions')}`;
 
   return (
     <div className="h-full flex flex-col bg-white">
+      {/* Article Toolbar */}
+      <ArticleToolbar
+        onSelectAndExplain={handleSelectAndExplain}
+        onKeyPoints={handleGetKeyPoints}
+        onQuizGeneration={() => dispatch({ type: ActionTypes.SHOW_QUIZ_MODAL })}
+        onTranslateArticle={handleTranslate}
+        isSelectMode={isSelectMode}
+        isShowingTranslation={isShowingTranslation}
+        isLoadingTranslation={isLoadingTranslation}
+      />
+      
       {/* Article Header */}
-      <div className="border-b border-gray-200 p-4 bg-gray-50">        <div className="flex items-center justify-between mb-3">
+      <div className="border-b border-gray-200 p-4 bg-gray-50">
+        <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold text-gray-900 line-clamp-2">
             {state.selectedArticle.mainTitle || state.selectedArticle.shortTitle}
           </h2>
-          <div className="flex items-center space-x-2 flex-shrink-0 ml-4">
-            <Button
-              onClick={handleGetKeyPoints}
-              variant="outline"
-              size="sm"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-              {t('articleViewer.buttons.keyPoints')}
-            </Button>            <Button
-              onClick={() => dispatch({ type: ActionTypes.SHOW_QUIZ_MODAL })}
-              variant="primary"
-              size="sm"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {t('articleViewer.buttons.quiz')}
-            </Button>
-          </div>
         </div>
         
         <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -231,10 +339,6 @@ ${t('articleViewer.prompts.keyPointsInstructions')}`;
             </span>
           )}
         </div>
-        
-        <p className="text-sm text-amber-700 bg-amber-50 p-3 rounded-md mt-3 border border-amber-200">
-          💡 <strong>{t('articleViewer.hint.title')}</strong> {t('articleViewer.hint.message')}
-        </p>
       </div>
 
       {/* Article Content */}
@@ -245,7 +349,9 @@ ${t('articleViewer.prompts.keyPointsInstructions')}`;
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-sky-600 prose-strong:text-gray-900"
             onMouseUp={handleTextSelection}
             dangerouslySetInnerHTML={{ 
-              __html: formattedContent?.html || `<p>${t('articleViewer.errors.contentNotAvailable')}</p>` 
+              __html: (isShowingTranslation && translatedContent) ? 
+                translatedContent : 
+                (formattedContent?.html || `<p>${t('articleViewer.errors.contentNotAvailable')}</p>`)
             }}
           />
         </div>

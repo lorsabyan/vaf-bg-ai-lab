@@ -204,6 +204,16 @@
       "ru": "Русский"
     }
   },
+  "articleToolbar": {
+    "title": "Article Tools",
+    "selectAndExplain": "Select & Explain",
+    "keyPoints": "Key Points",
+    "quiz": "Generate Quiz",
+    "translate": "Translate",
+    "showOriginal": "Show Original",
+    "translated": "Translated",
+    "selectModeActive": "Select text to get explanation"
+  },
   "articleViewer": {
     "errors": {
       "apiKeyRequired": "Please enter the Gemini API key first.",
@@ -212,12 +222,16 @@
       "keyPointsFailed": "Failed to get key points.",
       "keyPointsError": "Error occurred while getting key points. ({{error}})",
       "keyPointsTruncated": "The key points response was too long and was cut off. Please try with a shorter article.",
-      "contentNotAvailable": "Content is not available."
+      "contentNotAvailable": "Content is not available.",
+      "translationFailed": "Failed to translate article.",
+      "translationError": "Error occurred while translating article. ({{error}})"
     },
     "loading": {
       "explanation": "Loading explanation...",
       "general": "Loading...",
-      "keyPoints": "Loading key points..."
+      "keyPoints": "Loading key points...",
+      "translation": "Translating article...",
+      "translationDescription": "Preserving original formatting and structure"
     },
     "noArticle": {
       "title": "Select Article",
@@ -232,7 +246,8 @@
       "message": "You can get an explanation by selecting any text."
     },
     "modals": {
-      "keyPointsTitle": "Key Points"
+      "keyPointsTitle": "Key Points",
+      "translationTitle": "Translation"
     },
     "prompts": {
       "keyPointsPrefix": "The complete text of the article is as follows:",

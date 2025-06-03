@@ -204,6 +204,16 @@
       "ru": "Русский"
     }
   },
+  "articleToolbar": {
+    "title": "Инструменты статьи",
+    "selectAndExplain": "Выбрать и объяснить",
+    "keyPoints": "Ключевые точки",
+    "quiz": "Создать тест",
+    "translate": "Перевести",
+    "showOriginal": "Показать оригинал",
+    "translated": "Переведено",
+    "selectModeActive": "Выберите текст для получения объяснения"
+  },
   "articleViewer": {
     "errors": {
       "apiKeyRequired": "Пожалуйста, сначала введите ключ API Gemini.",
@@ -212,12 +222,16 @@
       "keyPointsFailed": "Не удалось получить ключевые точки.",
       "keyPointsError": "Произошла ошибка при получении ключевых точек. ({{error}})",
       "keyPointsTruncated": "Ответ с ключевыми точками был слишком длинным и был обрезан. Попробуйте с более короткой статьей.",
-      "contentNotAvailable": "Содержимое недоступно."
+      "contentNotAvailable": "Содержимое недоступно.",
+      "translationFailed": "Не удалось перевести статью.",
+      "translationError": "Произошла ошибка при переводе статьи. ({{error}})"
     },
     "loading": {
       "explanation": "Загрузка объяснения...",
       "general": "Загрузка...",
-      "keyPoints": "Загрузка ключевых точек..."
+      "keyPoints": "Загрузка ключевых точек...",
+      "translation": "Перевод статьи...",
+      "translationDescription": "Сохранение оригинального форматирования и структуры"
     },
     "noArticle": {
       "title": "Выберите статью",
@@ -232,7 +246,8 @@
       "message": "Вы можете получить объяснение, выделив любой текст."
     },
     "modals": {
-      "keyPointsTitle": "Ключевые точки"
+      "keyPointsTitle": "Ключевые точки",
+      "translationTitle": "Перевод"
     },
     "prompts": {
       "keyPointsPrefix": "Полный текст статьи следующий:",
