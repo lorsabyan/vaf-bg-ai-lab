@@ -1,0 +1,247 @@
+{
+  "common": {
+    "loading": "Բեռնվում է...",
+    "error": "Սխալ",
+    "success": "Հաջողություն",
+    "cancel": "Չեղարկել",
+    "close": "Փակել",
+    "save": "Պահպանել",
+    "delete": "Ջնջել",
+    "edit": "Խմբագրել",
+    "back": "Վերադառնալ",
+    "next": "Հաջորդ",
+    "previous": "Նախորդ",
+    "confirm": "Հաստատել",
+    "yes": "Այո",
+    "no": "Ոչ"
+  },
+  "header": {
+    "title": "Brainograph AI Lab",
+    "subtitle": "VAF Educational Platform",
+    "apiKeyTooltip": "Gemini API բանալի"
+  },
+  "navigation": {
+    "search": "Որոնում",
+    "quiz": "Վիկտորինա", 
+    "history": "Պատմություն"
+  },
+  "auth": {
+    "login": "Մուտք գործել",
+    "logout": "Դուրս գալ",
+    "email": "Էլեկտրոնային փոստ",
+    "password": "Գաղտնաբառ",
+    "emailPlaceholder": "մուտքագրեք էլ. փոստը",
+    "passwordPlaceholder": "մուտքագրեք գաղտնաբառը",
+    "loginSuccess": "Հաջողությամբ մուտք գործեցիք",
+    "loginError": "Մուտքի ժամանակ տեղի ունեցավ սխալ",
+    "logoutSuccess": "Դուք հաջողությամբ դուրս եկաք",
+    "welcome": "Բարի գալուստ",
+    "appName": "Brainograph AI Lab",
+    "loggingIn": "Մուտք գործում...",
+    "requiredFields": "Էլ. փոստը և գաղտնաբառը պարտադիր են։",
+    "poweredBy": "Աջակցություն՝"
+  },
+  "search": {
+    "title": "Հոդվածների որոնում",
+    "placeholder": "Մուտքագրեք որոնման բառ...",
+    "searchButton": "Որոնել",
+    "results": "Որոնման արդյունքներ",
+    "resultsCount": "Գտնվել է {{count}} արդյունք",
+    "noResults": "Ոչ մի արդյունք չգտնվեց",
+    "searching": "Որոնում...",
+    "searchError": "Որոնման ժամանակ տեղի ունեցավ սխալ։",
+    "selectArticle": "Ընտրեք հոդված ձախ վահանակից՝ բովանդակությունը դիտելու համար",
+    "untitledArticle": "Անունակի հոդված",
+    "enterKeyword": "Խնդրում ենք մուտքագրել որոնման բառ",
+    "startSearching": "Սկսեք որոնումը բառ մուտքագրելով"
+  },
+  "quiz": {
+    "modal": {
+      "title": "Վիկտորինայի ստեղծման կարգավորումներ",
+      "selectedArticle": "Ընտրված հոդված",
+      "charactersCount": "նիշ",
+      "noArticleSelected": "Հոդված ընտրված չէ: Խնդրում ենք նախ ընտրել հոդված հոդվածների որոնման բաժնից:",
+      "aiInstructions": "AI հուշում",
+      "instructionsPlaceholder": "Մուտքագրեք վիկտորինա ստեղծելու համար հատուկ հրահանգներ...",
+      "aiModel": "AI մոդել",
+      "creativityLevel": "Ստեղծագործական մակարդակ (ջերմաստիճան)",
+      "conservative": "Պահպանողական (0.0)",
+      "balanced": "Հավասարակշռված (1.0)",
+      "creative": "Ստեղծագործական (2.0)",
+      "apiKeyRequired": "Վիկտորինա ստեղծելու համար անհրաժեշտ է Gemini API բանալի",
+      "setApiKey": "Սահմանել API բանալի",
+      "cancel": "Չեղարկել",
+      "generating": "Վիկտորինա ստեղծվում է...",
+      "generateQuiz": "Ստեղծել վիկտորինա"
+    },
+    "generator": {
+      "title": "Վիկտորինա ստեղծել",
+      "subtitle": "Ընտրված հոդվածներից AI-ի օգնությամբ վիկտորինաներ ստեղծեք",
+      "selectedArticle": "Ընտրված հոդված",
+      "contentAvailable": "Հասանելի բովանդակություն՝ {{count}} նիշ",
+      "noArticleSelected": "Հոդված ընտրված չէ: Խնդրում ենք նախ ընտրել հոդված հոդվածների որոնման բաժնից:",
+      "quizTemplate": "Վիկտորինայի ձև",
+      "customInstructions": "Հատուկ հրահանգներ",
+      "instructionsPlaceholder": "Մուտքագրեք վիկտորինա ստեղծելու համար հատուկ հրահանգներ...",
+      "aiModel": "AI մոդել",
+      "creativityLevel": "Ստեղծագործական մակարդակ (ջերմաստիճան)՝ {{temperature}}",
+      "conservative": "Պահպանողական (0.0)",
+      "balanced": "Հավասարակշռված (0.5)",
+      "creative": "Ստեղծագործական (1.0)",
+      "apiKeyRequired": "Վիկտորինա ստեղծելու համար անհրաժեշտ է Gemini API բանալի",
+      "setApiKey": "Սահմանել API բանալի",
+      "generatingQuiz": "Վիկտորինա ստեղծվում է...",
+      "generateQuiz": "Ստեղծել վիկտորինա"
+    },
+    "interface": {
+      "quizError": "Վիկտորինայի սխալ",
+      "noQuestionsAvailable": "Վիկտորինայի հարցեր հասանելի չեն:",
+      "close": "Փակել",
+      "results": "Վիկտորինայի արդյունքներ",
+      "excellent": "Գերազանց!",
+      "goodJob": "Լավ արդյունք!",
+      "keepPracticing": "Շարունակեք պարապել!",
+      "correctAnswers": "Դուք ճիշտ պատասխանել եք {{correct}}-ը {{total}}-ից:",
+      "saveResults": "Պահպանել արդյունքները",
+      "questionProgress": "Հարց {{current}}-ը {{total}}-ից",
+      "percentComplete": "Ավարտված է {{percent}}%-ը",
+      "previous": "Նախորդ",
+      "cancel": "Չեղարկել",
+      "nextQuestion": "Հաջորդ հարց",
+      "finishQuiz": "Ավարտել վիկտորինան",
+      "yourAnswer": "(Ձեր պատասխանը)"
+    },
+    "history": {
+      "title": "Վիկտորինաների պատմություն",
+      "statistics": "Վիկտորինաների վիճակագրություն",
+      "noHistoryTitle": "Վիկտորինաների պատմություն չկա",
+      "noHistoryMessage": "Դուք դեռ վիկտորինա չեք անցել: Ստեղծեք և անցեք վիկտորինա՝ ձեր արդյունքները այստեղ տեսնելու համար:",
+      "noHistory": "Վիկտորինաների պատմություն չի գտնվել",
+      "clearHistory": "Մաքրել պատմությունը",
+      "confirmClearHistory": "Վստա՞հ եք, որ ցանկանում եք ջնջել ամբողջ վիկտորինաների պատմությունը: Այս գործողությունը հնարավոր չէ հետ գործարկել:",
+      "confirmDeleteQuiz": "Վստա՞հ եք, որ ցանկանում եք ջնջել այս վիկտորինայի արդյունքը:",
+      "historyCleared": "Վիկտորինաների պատմությունը մաքրվեց",
+      "quizDeleted": "Վիկտորինայի արդյունքը ջնջվեց",
+      "loadError": "Վիկտորինաների պատմությունը բեռնելիս սխալ առաջացավ",
+      "totalQuizzes": "Ընդհանուր վիկտորինաներ",
+      "averageScore": "Միջին գնահատական",
+      "bestScore": "Լավագույն գնահատական",
+      "recentAverage": "Վերջին միջին",
+      "excellent": "Գերազանց",
+      "good": "Լավ",
+      "needsImprovement": "Կարիք է բարելավման",
+      "viewDetails": "Դիտել մանրամասները",
+      "delete": "Ջնջել",
+      "completedOn": "Ավարտվել է՝ {{date}}",
+      "score": "Գնահատական՝ {{score}}%",
+      "questions": "Հարցեր՝ {{count}}",
+      "model": "Մոդել՝ {{model}}",
+      "untitledQuiz": "Անանուն վիկտորինա",
+      "correctAnswers": "{{correct}} / {{total}} ճիշտ",
+      "quizDetails": "Վիկտորինայի մանրամասները",
+      "close": "Փակել",
+      "correctAnswer": "✓",
+      "yourAnswer": "(Ձեր պատասխանը)"
+    },
+    "interfacePage": {
+      "quizError": "Վիկտորինայի սխալ",
+      "noQuestionsMessage": "Վիկտորինայի հարցեր հասանելի չեն:",
+      "backToArticle": "Վերադառնալ հոդվածին",
+      "quizResults": "Վիկտորինայի արդյունքներ",
+      "newQuiz": "Նոր վիկտորինա",
+      "excellent": "Գերազանց!",
+      "goodJob": "Լավ արդյունք!",
+      "keepPracticing": "Շարունակեք պարապել!",
+      "detailedResults": "Մանրամասն արդյունքներ",
+      "correctAnswerLabel": "✓ Ճիշտ պատասխան",
+      "yourAnswerLabel": "Ձեր պատասխանը",
+      "quiz": "Վիկտորինա",
+      "questionNumber": "Հարց {{current}} / {{total}}",
+      "close": "Փակել",
+      "difficulty": "Բարդություն՝",
+      "checkAnswer": "Ստուգել պատասխանը",
+      "correctFeedback": "Ճիշտ է!",
+      "incorrectFeedback": "Սխալ է՝ Ճիշտ պատասխանն էր «{{correct}}»",
+      "notAnsweredFeedback": "Պատասխանված չէ՝ Խնդրում ենք ընտրել պատասխան:",
+      "explanation": "Բացատրություն՝",
+      "previous": "Նախորդ",
+      "next": "Հաջորդ",
+      "finishQuiz": "Ավարտել վիկտորինան",
+      "scoreMessage": "Դուք ճիշտ պատասխանել եք {{correct}} հարցի {{total}}-ից:"
+    },
+    "errors": {
+      "apiKeyRequired": "Խնդրում ենք նախ ընտրել հոդված հոդվածների որոնման բաժնից:",
+      "noArticleSelected": "Ընտրված հոդվածը բովանդակություն չունի վիկտորինա ստեղծելու համար:",
+      "generationFailed": "Վիկտորինան ստեղծելը ձախողվեց: Խնդրում ենք փորձել կրկին:",
+      "generationError": "Վիկտորինան ստեղծելը ձախողվեց: Խնդրում ենք ստուգել ձեր API բանալին և փորձել կրկին:",
+      "completionSuccess": "Վիկտորինան հաջողությամբ ավարտվեց!",
+      "quizGeneratedSuccess": "Վիկտորինան հաջողությամբ ստեղծվեց {{count}} հարցերով!",
+      "quizCompletedSuccess": "Վիկտորինան ավարտվեց! Գնահատական՝ {{score}}/{{total}}"
+    }
+  },
+  "apiKey": {
+    "title": "Gemini API բանալի",
+    "label": "API բանալի",
+    "placeholder": "Ձեր Gemini API բանալին",
+    "save": "Պահպանել",
+    "clear": "Մաքրել",
+    "required": "Խնդրում ենք մուտքագրել Gemini API բանալին",
+    "successMessage": "API բանալին հաջողությամբ պահպանվեց",
+    "clearMessage": "API բանալին մաքրվեց",
+    "errorMessage": "API բանալին սխալ է։ {{error}}",
+    "validating": "Ստուգում...",
+    "storageInfo": "Բանալին պահպանվում է ձեր զննարկչի localStorage-ում։",
+    "getKeyLink": "Ինչպես ստանալ Gemini API բանալի →"
+  },
+  "language": {
+    "select": "Ընտրել լեզու",
+    "current": "Ընթացիկ լեզու",
+    "languages": {
+      "hy": "Հայերեն (Արևելյան)",
+      "hyw": "Հայերեն (Արևմտյան)",
+      "en": "English",
+      "ru": "Русский"
+    }
+  },
+  "articleViewer": {
+    "errors": {
+      "apiKeyRequired": "Խնդրում ենք նախ մուտքագրել Gemini API բանալին։",
+      "noArticleSelected": "Խնդրում ենք նախ ընտրել հոդված։",
+      "explanationFailed": "Բացատրությունը բերելիս սխալ տեղի ունեցավ։",
+      "keyPointsFailed": "Հիմնական կետերը ստանալ չհաջողվեց։",
+      "keyPointsError": "Հիմնական կետերը բերելիս սխալ տեղի ունեցավ։ ({{error}})",
+      "keyPointsTruncated": "Հիմնական կետերի պատասխանը չափից երկար էր և կտրվել է։ Խնդրում ենք փորձել ավելի կարճ հոդվածով։",
+      "contentNotAvailable": "Բովանդակությունը հասանելի չէ։"
+    },
+    "loading": {
+      "explanation": "Բացատրությունը բեռնվում է...",
+      "general": "Բեռնվում է...",
+      "keyPoints": "Հիմնական կետերի բեռնում..."
+    },
+    "noArticle": {
+      "title": "Ընտրեք հոդված",
+      "message": "Ընտրեք հոդված ձախ վահանակից՝ բովանդակությունը դիտելու համար"
+    },
+    "buttons": {
+      "keyPoints": "Հիմնական կետեր",
+      "quiz": "Վիկտորինա"
+    },
+    "hint": {
+      "title": "Հուշում:",
+      "message": "Ցանկացած տեքստ ընտրելով կարող եք ստանալ դրա բացատրությունը։"
+    },
+    "modals": {
+      "keyPointsTitle": "Հիմնական կետեր"
+    },
+    "prompts": {
+      "keyPointsPrefix": "Հոդվածի ամբողջական տեքստը հետևյալն է՝",
+      "keyPointsInstructions": "Խնդրում եմ այս հոդվածից առանձնացրու հիմնական կետերը (key points) հայերենով։ Ներկայացրու դրանք որպես կարճ, հստակ կետերի ցանկ։ Յուրաքանչյուր կետ սկսիր նոր տողից։"
+    }
+  },
+  "validation": {
+    "required": "Այս դաշտը պարտադիր է",
+    "invalidEmail": "Էլ. փոստի ֆորմատը սխալ է",
+    "minLength": "Նվազագույնը {{count}} նիշ",
+    "maxLength": "Առավելագույնը {{count}} նիշ"
+  }
+}

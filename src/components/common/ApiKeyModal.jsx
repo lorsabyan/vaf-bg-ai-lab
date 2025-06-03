@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import quizService from '../../services/quizService';
 
 function ApiKeyModal({ isOpen, onClose }) {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [apiKey, setApiKey] = useState(state.apiKeys.gemini);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +15,7 @@ function ApiKeyModal({ isOpen, onClose }) {
     if (!apiKey.trim()) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք մուտքագրել Gemini API բանալին։'
+        payload: t('apiKey.required')
       });
       return;
     }
@@ -32,14 +34,14 @@ function ApiKeyModal({ isOpen, onClose }) {
       
       dispatch({
         type: ActionTypes.SET_SUCCESS,
-        payload: 'Gemini API բանալին պահպանված է։'
+        payload: t('apiKey.successMessage')
       });
       
       onClose();
     } catch (error) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: `API բանալին սխալ է։ ${error.message}`
+        payload: t('apiKey.errorMessage', { error: error.message })
       });
     } finally {
       setIsLoading(false);
@@ -54,7 +56,7 @@ function ApiKeyModal({ isOpen, onClose }) {
     });
     dispatch({
       type: ActionTypes.SET_SUCCESS,
-      payload: 'Gemini API բանալին մաքրված է։'
+      payload: t('apiKey.clearMessage')
     });
     onClose();
   };
@@ -65,7 +67,7 @@ function ApiKeyModal({ isOpen, onClose }) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Gemini API բանալի
+              {t('apiKey.title')}
             </h3>
             <button
               onClick={onClose}
@@ -80,21 +82,21 @@ function ApiKeyModal({ isOpen, onClose }) {
           <div className="space-y-4">
             <div>
               <label htmlFor="api-key" className="block text-sm font-medium text-gray-700 mb-1">
-                API բանալի
+                {t('apiKey.label')}
               </label>
               <input
                 id="api-key"
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Ձեր Gemini API բանալին"
+                placeholder={t('apiKey.placeholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-sky-500 focus:border-sky-500 text-sm"
                 disabled={isLoading}
               />
             </div>
 
             <p className="text-xs text-gray-500">
-              Բանալին պահպանվում է ձեր զննարկչի localStorage-ում։
+              {t('apiKey.storageInfo')}
             </p>
             
             <p className="text-xs text-blue-600">
@@ -104,7 +106,7 @@ function ApiKeyModal({ isOpen, onClose }) {
                 rel="noopener noreferrer"
                 className="hover:underline"
               >
-                Ինչպես ստանալ Gemini API բանալի →
+                {t('apiKey.getKeyLink')}
               </a>
             </p>
 
@@ -114,21 +116,21 @@ function ApiKeyModal({ isOpen, onClose }) {
                 disabled={isLoading}
                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors"
               >
-                {isLoading ? 'Ստուգում...' : 'Պահպանել'}
+                {isLoading ? t('apiKey.validating') : t('apiKey.save')}
               </button>
               <button
                 onClick={handleClear}
                 disabled={isLoading}
                 className="bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors"
               >
-                Մաքրել
+                {t('apiKey.clear')}
               </button>
               <button
                 onClick={onClose}
                 disabled={isLoading}
                 className="bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-md text-sm transition-colors"
               >
-                Չեղարկել
+                {t('common.cancel')}
               </button>
             </div>
           </div>

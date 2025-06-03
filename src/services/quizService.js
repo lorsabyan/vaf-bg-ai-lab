@@ -24,7 +24,7 @@ class QuizService {
     const {
       instructions,
       articleContent,
-      model = 'gemini-2.0-flash',
+      model = 'gemini-2.5-flash-preview-05-20',
       temperature = 0.7,
     } = options;
 
@@ -53,12 +53,22 @@ class QuizService {
         contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
         generationConfig: { 
           temperature,
-          maxOutputTokens: 4096,
+          maxOutputTokens: 8192,
         },
       });
 
       const response = await result.response;
       let rawTextOutput = response.text();
+
+      // Check if response was cut off due to token limit
+      if (result.response.candidates && result.response.candidates[0] && 
+          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
+        return {
+          success: false,
+          error: 'Պատասխանը չափից երկար է և կտրվել է։ Խնդրում ենք փոքրացնել հոդվածի չափը կամ հանձնարարականները։',
+          rawResponse: rawTextOutput,
+        };
+      }
 
       if (!rawTextOutput) {
         throw new Error('No response generated from Gemini API.');
@@ -148,7 +158,7 @@ ${context}
 Հաշվի առնելով վերոնշյալ հոդվածի համատեքստը, խնդրում եմ բացատրիր «${term}» տերմինը կամ արտահայտությունը հայերենով։ Տուր հակիրճ և հասկանալի բացատրություն։ Պատասխանը ֆորմատավորիր **միայն որպես HTML**։ **Մի՛ ներառիր որևէ նախաբան կամ վերջաբան, այլ միայն բացատրությունը։ Մի՛ օգտագործիր markdown:** Օգտագործիր <strong> թեգը թավատառի համար, <em> թեգը շեղատառի համար, և <br> թեգը տողադարձերի համար։`;
 
     try {
-      const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
       
       const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
@@ -159,6 +169,16 @@ ${context}
       });
 
       const response = await result.response;
+      
+      // Check if response was cut off due to token limit
+      if (result.response.candidates && result.response.candidates[0] && 
+          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
+        return {
+          success: false,
+          error: 'Բացատրությունը չափից երկար է և կտրվել է։',
+        };
+      }
+      
       let explanation = response.text();
 
       if (!explanation) {

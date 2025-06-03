@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 
 const QuizHistory = () => {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [quizHistory, setQuizHistory] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -30,24 +32,24 @@ const QuizHistory = () => {
       }
     } catch (error) {
       console.error('Error loading quiz history:', error);
-      showMessage('Error loading quiz history', 'error');
+      showMessage(t('quiz.history.loadError'), 'error');
     }
   };
 
   const clearHistory = () => {
-    if (window.confirm('Are you sure you want to clear all quiz history? This action cannot be undone.')) {
+    if (window.confirm(t('quiz.history.confirmClearHistory'))) {
       localStorage.removeItem('quiz_history');
       setQuizHistory([]);
-      showMessage('Quiz history cleared', 'success');
+      showMessage(t('quiz.history.historyCleared'), 'success');
     }
   };
 
   const deleteQuizResult = (quizId) => {
-    if (window.confirm('Are you sure you want to delete this quiz result?')) {
+    if (window.confirm(t('quiz.history.confirmDeleteQuiz'))) {
       const updatedHistory = quizHistory.filter(quiz => quiz.id !== quizId);
       setQuizHistory(updatedHistory);
       localStorage.setItem('quiz_history', JSON.stringify(updatedHistory));
-      showMessage('Quiz result deleted', 'success');
+      showMessage(t('quiz.history.quizDeleted'), 'success');
     }
   };
 
@@ -68,9 +70,9 @@ const QuizHistory = () => {
   };
 
   const getScoreLabel = (score) => {
-    if (score >= 80) return 'Excellent';
-    if (score >= 60) return 'Good';
-    return 'Needs Improvement';
+    if (score >= 80) return t('quiz.history.excellent');
+    if (score >= 60) return t('quiz.history.good');
+    return t('quiz.history.needsImprovement');
   };
 
   const calculateStats = () => {
@@ -100,11 +102,10 @@ const QuizHistory = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
                   d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
           </svg>
-        </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No Quiz History</h3>
-        <p className="text-gray-600 mb-4">
-          You haven't completed any quizzes yet. Generate and take a quiz to see your results here.
-        </p>
+        </div>          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('quiz.history.noHistoryTitle')}</h3>
+          <p className="text-gray-600 mb-4">
+            {t('quiz.history.noHistoryMessage')}
+          </p>
       </div>
     );
   }
@@ -114,23 +115,23 @@ const QuizHistory = () => {
       {/* Statistics */}
       {stats && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Statistics</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quiz.history.statistics')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.totalQuizzes}</div>
-              <div className="text-sm text-gray-600">Total Quizzes</div>
+              <div className="text-sm text-gray-600">{t('quiz.history.totalQuizzes')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{stats.averageScore}%</div>
-              <div className="text-sm text-gray-600">Average Score</div>
+              <div className="text-sm text-gray-600">{t('quiz.history.averageScore')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{stats.bestScore}%</div>
-              <div className="text-sm text-gray-600">Best Score</div>
+              <div className="text-sm text-gray-600">{t('quiz.history.bestScore')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">{stats.recentAverage}%</div>
-              <div className="text-sm text-gray-600">Recent Average</div>
+              <div className="text-sm text-gray-600">{t('quiz.history.recentAverage')}</div>
             </div>
           </div>
         </div>
@@ -140,9 +141,9 @@ const QuizHistory = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Quiz History</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('quiz.history.title')}</h3>
             <Button onClick={clearHistory} variant="outline" size="sm">
-              Clear History
+              {t('quiz.history.clearHistory')}
             </Button>
           </div>
         </div>
@@ -154,7 +155,7 @@ const QuizHistory = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <h4 className="text-sm font-medium text-gray-900 truncate">
-                      {quiz.title || 'Untitled Quiz'}
+                      {quiz.title || t('quiz.history.untitledQuiz')}
                     </h4>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${getScoreColor(quiz.score)}`}>
                       {quiz.score}% • {getScoreLabel(quiz.score)}
@@ -162,7 +163,10 @@ const QuizHistory = () => {
                   </div>
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span>
-                      {quiz.correctAnswers || 0} / {quiz.totalQuestions || 0} correct
+                      {t('quiz.history.correctAnswers', { 
+                        correct: quiz.correctAnswers || 0, 
+                        total: quiz.totalQuestions || 0 
+                      })}
                     </span>
                     <span>{formatDate(quiz.completedAt)}</span>
                     {quiz.model && (
@@ -181,7 +185,7 @@ const QuizHistory = () => {
                     variant="outline"
                     size="sm"
                   >
-                    View Details
+                    {t('quiz.history.viewDetails')}
                   </Button>
                   <Button
                     onClick={() => deleteQuizResult(quiz.id)}
@@ -189,7 +193,7 @@ const QuizHistory = () => {
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:border-red-300"
                   >
-                    Delete
+                    {t('quiz.history.delete')}
                   </Button>
                 </div>
               </div>
@@ -203,19 +207,19 @@ const QuizHistory = () => {
         <Modal 
           isOpen={showDetails} 
           onClose={() => setShowDetails(false)} 
-          title="Quiz Details"
+          title={t('quiz.history.quizDetails')}
           size="lg"
         >
           <div className="p-6">
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {selectedQuiz.title || 'Untitled Quiz'}
+                {selectedQuiz.title || t('quiz.history.untitledQuiz')}
               </h3>
               <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span>Completed: {formatDate(selectedQuiz.completedAt)}</span>
-                <span>Score: {selectedQuiz.score}%</span>
-                <span>Questions: {selectedQuiz.totalQuestions}</span>
-                {selectedQuiz.model && <span>Model: {selectedQuiz.model}</span>}
+                <span>{t('quiz.history.completedOn', { date: formatDate(selectedQuiz.completedAt) })}</span>
+                <span>{t('quiz.history.score', { score: selectedQuiz.score })}</span>
+                <span>{t('quiz.history.questions', { count: selectedQuiz.totalQuestions })}</span>
+                {selectedQuiz.model && <span>{t('quiz.history.model', { model: selectedQuiz.model })}</span>}
               </div>
             </div>
 
@@ -245,8 +249,8 @@ const QuizHistory = () => {
                                 'text-gray-600'
                               }`}>
                                 {String.fromCharCode(65 + optIndex)}. {option}
-                                {optIndex === question.correctAnswer && ' ✓'}
-                                {optIndex === userAnswer && !isCorrect && ' (Your answer)'}
+                                {optIndex === question.correctAnswer && ` ${t('quiz.history.correctAnswer')}`}
+                                {optIndex === userAnswer && !isCorrect && ` ${t('quiz.history.yourAnswer')}`}
                               </div>
                             ))}
                           </div>
@@ -260,7 +264,7 @@ const QuizHistory = () => {
 
             <div className="flex justify-end pt-6 border-t border-gray-200">
               <Button onClick={() => setShowDetails(false)}>
-                Close
+                {t('quiz.history.close')}
               </Button>
             </div>
           </div>

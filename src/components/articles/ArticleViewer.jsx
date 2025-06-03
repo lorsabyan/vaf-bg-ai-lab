@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import articleService from '../../services/articleService';
 import quizService from '../../services/quizService';
@@ -8,6 +9,7 @@ import QuizModal from '../quiz/QuizModal';
 import QuizInterfacePage from '../quiz/QuizInterfacePage';
 
 function ArticleViewer() {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [isExplaining, setIsExplaining] = useState(false);
   const [selectedText, setSelectedText] = useState('');
@@ -42,7 +44,7 @@ function ArticleViewer() {
     if (!state.apiKeys.gemini) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ մուտքագրել Gemini API բանալին։'
+        payload: t('articleViewer.errors.apiKeyRequired')
       });
       return;
     }
@@ -57,7 +59,7 @@ function ArticleViewer() {
     });
     setShowTooltip(true);
     setIsExplaining(true);
-    setExplanation('Բացատրությունը բեռնվում է...');
+    setExplanation(t('articleViewer.loading.explanation'));
 
     try {
       const result = await quizService.explainTerm(
@@ -72,7 +74,7 @@ function ArticleViewer() {
         setExplanation(`<span class="text-red-600">${result.error}</span>`);
       }
     } catch (error) {
-      setExplanation(`<span class="text-red-600">Բացատրությունը բերելիս սխալ տեղի ունեցավ։</span>`);
+      setExplanation(`<span class="text-red-600">${t('articleViewer.errors.explanationFailed')}</span>`);
     } finally {
       setIsExplaining(false);
     }
@@ -82,7 +84,7 @@ function ArticleViewer() {
     if (!formattedContent?.plainText) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ ընտրել հոդված։'
+        payload: t('articleViewer.errors.noArticleSelected')
       });
       return;
     }
@@ -90,7 +92,7 @@ function ArticleViewer() {
     if (!state.apiKeys.gemini) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ մուտքագրել Gemini API բանալին։'
+        payload: t('articleViewer.errors.apiKeyRequired')
       });
       return;
     }
@@ -99,18 +101,18 @@ function ArticleViewer() {
     setIsLoadingKeyPoints(true);
     setKeyPoints('');
 
-    const promptText = `Հոդվածի ամբողջական տեքստը հետևյալն է՝
+    const promptText = `${t('articleViewer.prompts.keyPointsPrefix')}
 ---
 ${formattedContent.plainText}
 ---
-Խնդրում եմ այս հոդվածից առանձնացրու հիմնական կետերը (key points) հայերենով։ Ներկայացրու դրանք որպես կարճ, հստակ կետերի ցանկ։ Յուրաքանչյուր կետ սկսիր նոր տողից։`;
+${t('articleViewer.prompts.keyPointsInstructions')}`;
 
     try {
       if (!quizService.genAI) {
         quizService.initializeAPI(state.apiKeys.gemini);
       }
 
-      const generativeModel = quizService.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const generativeModel = quizService.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
       
       const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
@@ -121,6 +123,14 @@ ${formattedContent.plainText}
       });
 
       const response = await result.response;
+      
+      // Check if response was cut off due to token limit
+      if (result.response.candidates && result.response.candidates[0] && 
+          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
+        setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsTruncated')}</p>`);
+        return;
+      }
+      
       let keyPointsText = response.text();
 
       if (keyPointsText) {
@@ -131,11 +141,11 @@ ${formattedContent.plainText}
           '</ul>';
         setKeyPoints(htmlKeyPoints);
       } else {
-        setKeyPoints('<p class="text-red-600">Հիմնական կետերը ստանալ չհաջողվեց։</p>');
+        setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsFailed')}</p>`);
       }
     } catch (error) {
       console.error('Error getting key points:', error);
-      setKeyPoints(`<p class="text-red-600">Հիմնական կետերը բերելիս սխալ տեղի ունեցավ։ (${error.message})</p>`);
+      setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsError', { error: error.message })}</p>`);
     } finally {
       setIsLoadingKeyPoints(false);
     }
@@ -172,10 +182,10 @@ ${formattedContent.plainText}
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Ընտրեք հոդված
+            {t('articleViewer.noArticle.title')}
           </h3>
           <p className="text-gray-500">
-            Ընտրեք հոդված ձախ վահանակից՝ բովանդակությունը դիտելու համար
+            {t('articleViewer.noArticle.message')}
           </p>
         </div>
       </div>
@@ -210,7 +220,7 @@ ${formattedContent.plainText}
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
-              Հիմնական կետեր
+              {t('articleViewer.buttons.keyPoints')}
             </Button>            <Button
               onClick={() => dispatch({ type: ActionTypes.SHOW_QUIZ_MODAL })}
               variant="primary"
@@ -219,7 +229,7 @@ ${formattedContent.plainText}
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Վիկտորինա
+              {t('articleViewer.buttons.quiz')}
             </Button>
           </div>
         </div>
@@ -234,7 +244,7 @@ ${formattedContent.plainText}
         </div>
         
         <p className="text-sm text-amber-700 bg-amber-50 p-3 rounded-md mt-3 border border-amber-200">
-          💡 <strong>Հուշում:</strong> Ցանկացած տեքստ ընտրելով կարող եք ստանալ դրա բացատրությունը։
+          💡 <strong>{t('articleViewer.hint.title')}</strong> {t('articleViewer.hint.message')}
         </p>
       </div>
 
@@ -246,7 +256,7 @@ ${formattedContent.plainText}
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-sky-600 prose-strong:text-gray-900"
             onMouseUp={handleTextSelection}
             dangerouslySetInnerHTML={{ 
-              __html: formattedContent?.html || '<p>Բովանդակությունը հասանելի չէ։</p>' 
+              __html: formattedContent?.html || `<p>${t('articleViewer.errors.contentNotAvailable')}</p>` 
             }}
           />
         </div>
@@ -276,7 +286,7 @@ ${formattedContent.plainText}
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span className="text-xs">Բեռնվում է...</span>
+                <span className="text-xs">{t('articleViewer.loading.general')}</span>
               </div>
             )}
           </div>
@@ -285,7 +295,7 @@ ${formattedContent.plainText}
       <Modal
         isOpen={showKeyPointsModal}
         onClose={() => setShowKeyPointsModal(false)}
-        title="Հիմնական կետեր"
+        title={t('articleViewer.modals.keyPointsTitle')}
         size="lg"
       >
         <div className="p-6">
@@ -295,7 +305,7 @@ ${formattedContent.plainText}
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span className="text-gray-600">Հիմնական կետերի բեռնում...</span>
+              <span className="text-gray-600">{t('articleViewer.loading.keyPoints')}</span>
             </div>
           ) : (
             <div 
