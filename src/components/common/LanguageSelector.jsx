@@ -28,7 +28,8 @@ function FlagIcon({ country, className = "" }) {
 function LanguageSelector() {
   const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState(i18n.language);
+  const [currentLang, setCurrentLang] = useState('en'); // Default to 'en' for SSR
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const languages = [
     { code: 'hy', name: t('language.languages.hy'), country: 'AM' },
@@ -37,12 +38,20 @@ function LanguageSelector() {
     { code: 'ru', name: t('language.languages.ru'), country: 'RU' }
   ];
 
-  // Update current language when i18n language changes
+  // Handle hydration and language changes
   useEffect(() => {
+    setIsHydrated(true);
     setCurrentLang(i18n.language);
   }, [i18n.language]);
 
-  const currentLanguage = languages.find(lang => lang.code === currentLang) || languages[0];
+  // Update current language when i18n language changes (after hydration)
+  useEffect(() => {
+    if (isHydrated) {
+      setCurrentLang(i18n.language);
+    }
+  }, [i18n.language, isHydrated]);
+
+  const currentLanguage = languages.find(lang => lang.code === currentLang) || languages.find(lang => lang.code === 'en');
 
   const handleLanguageChange = (languageCode) => {
     i18n.changeLanguage(languageCode);
@@ -51,6 +60,29 @@ function LanguageSelector() {
     }
     setIsOpen(false);
   };
+
+  // Don't render until hydrated to prevent mismatch
+  if (!isHydrated) {
+    return (
+      <div className="flex items-center space-x-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-md">
+        <FlagIcon 
+          country="US"
+          className="min-w-[1.5rem]" 
+        />
+        <span className="hidden sm:inline font-medium text-gray-700">
+          English
+        </span>
+        <svg 
+          className="w-4 h-4 text-gray-500" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

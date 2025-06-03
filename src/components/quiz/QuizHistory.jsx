@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import Button from '../ui/Button';
@@ -11,19 +11,15 @@ const QuizHistory = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  useEffect(() => {
-    loadQuizHistory();
-  }, []);
-
-  const showMessage = (message, type = 'success') => {
+  const showMessage = useCallback((message, type = 'success') => {
     if (type === 'success') {
       dispatch({ type: ActionTypes.SET_SUCCESS, payload: message });
     } else {
       dispatch({ type: ActionTypes.SET_ERROR, payload: message });
     }
-  };
+  }, [dispatch, ActionTypes]);
 
-  const loadQuizHistory = () => {
+  const loadQuizHistory = useCallback(() => {
     try {
       const saved = typeof window !== 'undefined' && window.localStorage 
         ? localStorage.getItem('quiz_history') 
@@ -36,7 +32,11 @@ const QuizHistory = () => {
       console.error('Error loading quiz history:', error);
       showMessage(t('quiz.history.loadError'), 'error');
     }
-  };
+  }, [t, showMessage]);
+
+  useEffect(() => {
+    loadQuizHistory();
+  }, [loadQuizHistory]);
 
   const clearHistory = () => {
     if (window.confirm(t('quiz.history.confirmClearHistory'))) {

@@ -86,4 +86,5 @@ class ArticleService {
   }
 }
 
-export default new ArticleService();
+const articleService = new ArticleService();
+export default articleService;

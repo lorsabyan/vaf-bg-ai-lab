@@ -4,9 +4,13 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 
 function I18nWrapper({ children }) {
   const { ready, i18n } = useTranslation();
-  const [currentLang, setCurrentLang] = useState(i18n.language);
+  const [currentLang, setCurrentLang] = useState('en'); // Default to 'en' for SSR
+  const [isHydrated, setIsHydrated] = useState(false);
   
   useEffect(() => {
+    setIsHydrated(true);
+    setCurrentLang(i18n.language);
+    
     const handleLanguageChange = (lng) => {
       setCurrentLang(lng);
     };
@@ -18,7 +22,7 @@ function I18nWrapper({ children }) {
     };
   }, [i18n]);
   
-  if (!ready) {
+  if (!ready || !isHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />

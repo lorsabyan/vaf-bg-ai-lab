@@ -204,4 +204,5 @@ ${context}
   }
 }
 
-export default new QuizService();
+const quizService = new QuizService();
+export default quizService;

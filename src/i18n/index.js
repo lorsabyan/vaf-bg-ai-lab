@@ -28,7 +28,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: undefined, // Let language detector work
+    lng: typeof window !== 'undefined' ? undefined : 'en', // Use 'en' on server, let detector work on client
     fallbackLng: ['en', 'hy'], // Try English first, then Armenian
     debug: false, // Disable debug logging
     
