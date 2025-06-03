@@ -198,10 +198,10 @@
     "select": "Select Language",
     "current": "Current Language",
     "languages": {
-      "hy": "Armenian (Eastern)",
-      "hyw": "Armenian (Western)",
+      "hy": "Արևելահայերեն",
+      "hyw": "Արևմտահայերեն",
       "en": "English",
-      "ru": "Russian"
+      "ru": "Русский"
     }
   },
   "articleViewer": {
