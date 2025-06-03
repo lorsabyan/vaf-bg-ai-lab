@@ -73,64 +73,6 @@ export const GEMINI_MODELS = [
 
 export const DEFAULT_QUIZ_INSTRUCTIONS = `Generate a comprehensive single-choice quiz in Armenian, formatted as a JSON object with OpenAPI scheme provided below. Output clean JSON from the provided HTML article provided below. The article is written in Armenian and enclosed within an <article> tag with an id attribute. Extract the article ID from the article tag and use it in the articleIds field for each question. Prioritize generating a large number of relevant and diverse questions. Use Armenian difficulty levels: "Հեշտ" for easy questions, "Միջին" for medium questions, and "Բարդ" for hard questions.`;
 
-// UI Messages
-export const MESSAGES = {
-  hy: {
-    // Authentication
-    login: 'Մուտք գործել',
-    logout: 'Դուրս գալ',
-    email: 'Էլեկտրոնային փոստ',
-    password: 'Գաղտնաբառ',
-    emailPlaceholder: 'մուտքագրեք էլ. փոստը',
-    passwordPlaceholder: 'մուտքագրեք գաղտնաբառը',
-    loginSuccess: 'Հաջողությամբ մուտք գործեցիք',
-    loginError: 'Մուտքի ժամանակ տեղի ունեցավ սխալ',
-    logoutSuccess: 'Դուք հաջողությամբ դուրս եկաք',
-    
-    // Search and Articles
-    search: 'Որոնում',
-    searchPlaceholder: 'Մուտքագրեք որոնման բառ',
-    searchResults: 'Որոնման արդյունքներ',
-    noResults: 'Արդյունքներ չկան',
-    searching: 'Որոնում...',
-    selectArticle: 'Ընտրեք հոդված ձախ վահանակից՝ բովանդակությունը դիտելու համար',
-    
-    // Quiz
-    generateQuiz: 'Ստեղծել վիկտորինա',
-    quizTitle: 'Վիկտորինայի վերնագիր',
-    quizDescription: 'Վիկտորինայի նկարագրություն',
-    nextQuestion: 'Հաջորդ հարցը',
-    checkAnswer: 'Ստուգել պատասխանը',
-    correct: 'Ճիշտ է!',
-    incorrect: 'Սխալ է',
-    explanation: 'Բացատրություն',
-    finalScore: 'Ձեր միավորները',
-    restartQuiz: 'Կրկին փորձել',
-    
-    // API Key
-    apiKey: 'API բանալի',
-    apiKeyPlaceholder: 'Ձեր Gemini API բանալին',
-    saveApiKey: 'Պահպանել API բանալին',
-    apiKeyRequired: 'Խնդրում ենք մուտքագրել API բանալին',
-    apiKeySaved: 'API բանալին պահպանված է',
-    
-    // General
-    loading: 'Բեռնվում է...',
-    error: 'Սխալ',
-    success: 'Հաջողություն',
-    cancel: 'Չեղարկել',
-    close: 'Փակել',
-    save: 'Պահպանել'
-  }
-};
-
-// Local Storage Keys
-export const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'accessToken',
-  GEMINI_API_KEY: 'geminiApiKey',
-  USER_PREFERENCES: 'userPreferences'
-};
-
 // Difficulty Level Mappings
 export const DIFFICULTY_MAPPINGS = {
   'Easy': 'Հեշտ',
