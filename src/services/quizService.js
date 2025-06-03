@@ -48,31 +48,17 @@ class QuizService {
 
     try {
       const generativeModel = this.genAI.getGenerativeModel({ model });
-      
-      const result = await generativeModel.generateContent({
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
         generationConfig: { 
           temperature,
-          maxOutputTokens: 8192,
         },
-      });
-
-      const response = await result.response;
+      });      const response = await result.response;
       let rawTextOutput = response.text();
-
-      // Check if response was cut off due to token limit
-      if (result.response.candidates && result.response.candidates[0] && 
-          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
-        return {
-          success: false,
-          error: 'Պատասխանը չափից երկար է և կտրվել է։ Խնդրում ենք փոքրացնել հոդվածի չափը կամ հանձնարարականները։',
-          rawResponse: rawTextOutput,
-        };
-      }
 
       if (!rawTextOutput) {
         throw new Error('No response generated from Gemini API.');
-      }      // Clean up the JSON response
+      }// Clean up the JSON response
       let cleanJsonString = rawTextOutput.trim();
       
       // Check if the response is an error message instead of JSON
@@ -159,25 +145,12 @@ ${context}
 
     try {
       const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
-      
-      const result = await generativeModel.generateContent({
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
         generationConfig: { 
           temperature: 0.4,
-          maxOutputTokens: 300,
         },
-      });
-
-      const response = await result.response;
-      
-      // Check if response was cut off due to token limit
-      if (result.response.candidates && result.response.candidates[0] && 
-          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
-        return {
-          success: false,
-          error: 'Բացատրությունը չափից երկար է և կտրվել է։',
-        };
-      }
+      });      const response = await result.response;
       
       let explanation = response.text();
 

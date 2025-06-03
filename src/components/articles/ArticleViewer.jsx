@@ -113,23 +113,12 @@ ${t('articleViewer.prompts.keyPointsInstructions')}`;
       }
 
       const generativeModel = quizService.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
-      
-      const result = await generativeModel.generateContent({
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
         generationConfig: { 
           temperature: 0.4,
-          maxOutputTokens: 1000,
         },
-      });
-
-      const response = await result.response;
-      
-      // Check if response was cut off due to token limit
-      if (result.response.candidates && result.response.candidates[0] && 
-          result.response.candidates[0].finishReason === 'MAX_TOKENS') {
-        setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsTruncated')}</p>`);
-        return;
-      }
+      });      const response = await result.response;
       
       let keyPointsText = response.text();
 
