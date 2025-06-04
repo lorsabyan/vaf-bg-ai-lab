@@ -180,10 +180,40 @@
       "quizCompletedSuccess": "Quiz completed! Score: {{score}}/{{total}}"
     }
   },
+  "tooltip": {
+    "explanation": "Explanation",
+    "images": "Images",
+    "links": "Links", 
+    "citations": "Citations",
+    "loadingImages": "Loading images...",
+    "loadingLinks": "Loading links...",
+    "loadingCitations": "Loading citations...",
+    "noImages": "No related images found",
+    "noLinks": "No related links found", 
+    "noCitations": "No citations found",
+    "poweredByGoogle": "Powered by Google Search"
+  },
   "apiKey": {
-    "title": "Gemini API Key",
-    "label": "API Key",
-    "placeholder": "Your Gemini API key",
+    "title": "API Configuration",
+    "gemini": {
+      "title": "Gemini AI",
+      "label": "Gemini API Key",
+      "placeholder": "Your Gemini API key",
+      "getKeyLink": "How to get Gemini API key →"
+    },
+    "googleSearch": {
+      "title": "Google Search",
+      "apiKeyLabel": "Google Search API Key",
+      "apiKeyPlaceholder": "Your Google Custom Search API key",
+      "engineIdLabel": "Search Engine ID",
+      "engineIdPlaceholder": "Your Custom Search Engine ID",
+      "bothRequired": "Both API key and Search Engine ID are required",
+      "successMessage": "Google Search API configuration saved successfully",
+      "clearMessage": "Google Search API configuration cleared",
+      "errorMessage": "Google Search API configuration is invalid. {{error}}",
+      "getApiKeyLink": "Get Google Custom Search API Key →",
+      "createEngineLink": "Create Custom Search Engine →"
+    },
     "save": "Save",
     "clear": "Clear",
     "required": "Please enter the Gemini API key",
@@ -191,8 +221,7 @@
     "clearMessage": "API key cleared",
     "errorMessage": "API key is invalid. {{error}}",
     "validating": "Validating...",
-    "storageInfo": "The key is stored in your browser's localStorage.",
-    "getKeyLink": "How to get Gemini API key →"
+    "storageInfo": "Keys are stored in your browser's localStorage."
   },
   "language": {
     "select": "Select Language",

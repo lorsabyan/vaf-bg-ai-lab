@@ -180,10 +180,40 @@
       "quizCompletedSuccess": "Викторина завершена! Результат: {{score}}/{{total}}"
     }
   },
+  "tooltip": {
+    "explanation": "Объяснение",
+    "images": "Изображения",
+    "links": "Ссылки",
+    "citations": "Цитаты",
+    "loadingImages": "Загрузка изображений...",
+    "loadingLinks": "Загрузка ссылок...",
+    "loadingCitations": "Загрузка цитат...",
+    "noImages": "Связанные изображения не найдены",
+    "noLinks": "Связанные ссылки не найдены",
+    "noCitations": "Цитаты не найдены",
+    "poweredByGoogle": "Поддерживается Google Search"
+  },
   "apiKey": {
-    "title": "Ключ API Gemini",
-    "label": "Ключ API",
-    "placeholder": "Ваш ключ API Gemini",
+    "title": "Настройки API",
+    "gemini": {
+      "title": "Gemini AI",
+      "label": "Ключ API Gemini",
+      "placeholder": "Ваш ключ API Gemini",
+      "getKeyLink": "Как получить ключ API Gemini →"
+    },
+    "googleSearch": {
+      "title": "Google Поиск",
+      "apiKeyLabel": "Ключ API Google Search",
+      "apiKeyPlaceholder": "Ваш ключ API Google Custom Search",
+      "engineIdLabel": "ID поисковой системы",
+      "engineIdPlaceholder": "Ваш ID Custom Search Engine",
+      "bothRequired": "Требуются как ключ API, так и ID поисковой системы",
+      "successMessage": "Настройки Google Search API успешно сохранены",
+      "clearMessage": "Настройки Google Search API очищены",
+      "errorMessage": "Настройки Google Search API недействительны. {{error}}",
+      "getApiKeyLink": "Получить ключ API Google Custom Search →",
+      "createEngineLink": "Создать Custom Search Engine →"
+    },
     "save": "Сохранить",
     "clear": "Очистить",
     "required": "Пожалуйста, введите ключ API Gemini",
@@ -191,8 +221,7 @@
     "clearMessage": "Ключ API очищен",
     "errorMessage": "Ключ API недействителен. {{error}}",
     "validating": "Проверка...",
-    "storageInfo": "Ключ сохраняется в localStorage вашего браузера.",
-    "getKeyLink": "Как получить ключ API Gemini →"
+    "storageInfo": "Ключи сохраняются в localStorage вашего браузера."
   },
   "language": {
     "select": "Выбрать язык",

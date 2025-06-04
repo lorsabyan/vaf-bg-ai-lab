@@ -179,10 +179,40 @@
       "quizCompletedSuccess": "Վիկտորինան աւարտուեցաւ! Գնահատական՝ {{score}}/{{total}}"
     }
   },
+  "tooltip": {
+    "explanation": "Բացատրություն",
+    "images": "Նկարներ",
+    "links": "Յղումներ",
+    "citations": "Մէջբերումներ",
+    "loadingImages": "Նկարներու բեռնում...",
+    "loadingLinks": "Յղումներու բեռնում...",
+    "loadingCitations": "Մէջբերումներու բեռնում...",
+    "noImages": "Կապակցուած նկարներ չգտնուեցան",
+    "noLinks": "Կապակցուած յղումներ չգտնուեցան",
+    "noCitations": "Մէջբերումներ չգտնուեցան",
+    "poweredByGoogle": "Google Search-ի կողմէ աջակցուած"
+  },
   "apiKey": {
-    "title": "Gemini API բանալի",
-    "label": "API բանալի",
-    "placeholder": "Ձեր Gemini API բանալին",
+    "title": "API կարգաւորումներ",
+    "gemini": {
+      "title": "Gemini AI",
+      "label": "Gemini API բանալի",
+      "placeholder": "Ձեր Gemini API բանալին",
+      "getKeyLink": "Ինչպէս ստանալ Gemini API բանալի →"
+    },
+    "googleSearch": {
+      "title": "Google որոնում",
+      "apiKeyLabel": "Google Search API բանալի",
+      "apiKeyPlaceholder": "Ձեր Google Custom Search API բանալին",
+      "engineIdLabel": "Որոնման շարժիչի ID",
+      "engineIdPlaceholder": "Ձեր Custom Search Engine ID-ն",
+      "bothRequired": "Անհրաժեշտ են եւ API բանալին, եւ Search Engine ID-ն",
+      "successMessage": "Google Search API կարգաւորումները հաջողութեամբ պահպանուեցան",
+      "clearMessage": "Google Search API կարգաւորումները մաքրուեցան",
+      "errorMessage": "Google Search API կարգաւորումները սխալ են։ {{error}}",
+      "getApiKeyLink": "Ստանալ Google Custom Search API բանալի →",
+      "createEngineLink": "Ստեղծել Custom Search Engine →"
+    },
     "save": "Պահպանել",
     "clear": "Մաքրել",
     "required": "Խնդրուում ենք մուտքագրել Gemini API բանալին",
@@ -190,8 +220,7 @@
     "clearMessage": "API բանալին մաքրուեցաւ",
     "errorMessage": "API բանալին սխալ է։ {{error}}",
     "validating": "Ստուգում...",
-    "storageInfo": "Բանալին պահպանուում է ձեր զննարկչի localStorage-ում։",
-    "getKeyLink": "Ինչպէս ստանալ Gemini API բանալի →"
+    "storageInfo": "Բանալիները պահպանուում են ձեր զննարկչի localStorage-ում։"
   },
   "language": {
     "select": "Ընտրել լեզու",

@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import articleService from '../../services/articleService';
 import quizService from '../../services/quizService';
+import googleSearchService from '../../services/googleSearchService';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import EnhancedTooltip from '../ui/EnhancedTooltip';
 import QuizModal from '../quiz/QuizModal';
 import QuizInterfacePage from '../quiz/QuizInterfacePage';
 import ArticleToolbar from './ArticleToolbar';
@@ -17,6 +19,8 @@ function ArticleViewer() {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [showTooltip, setShowTooltip] = useState(false);
   const [explanation, setExplanation] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [showKeyPointsModal, setShowKeyPointsModal] = useState(false);
   const [keyPoints, setKeyPoints] = useState('');
   const [isLoadingKeyPoints, setIsLoadingKeyPoints] = useState(false);
@@ -75,25 +79,58 @@ function ArticleViewer() {
     });
     setShowTooltip(true);
     setIsExplaining(true);
+    setSearchResults(null);
     setExplanation(t('articleViewer.loading.explanation'));
 
-    try {
-      const contentToUse = isShowingTranslation ? 
-        (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
-        (formattedContent?.plainText || '');
-        
-      const result = await quizService.explainTerm(
+    // Start both AI explanation and Google search concurrently
+    const promises = [];
+
+    // AI Explanation
+    const contentToUse = isShowingTranslation ? 
+      (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
+      (formattedContent?.plainText || '');
+      
+    promises.push(
+      quizService.explainTerm(
         selectedTerm,
         contentToUse,
         state.apiKeys.gemini,
         state.selectedLanguage
-      );
+      )
+    );
 
-      if (result.success) {
-        setExplanation(result.data);
+    // Google Search (if configured)
+    if (state.apiKeys.googleSearch && state.googleSearchEngineId) {
+      setIsLoadingSearch(true);
+      googleSearchService.initializeAPI(state.apiKeys.googleSearch, state.googleSearchEngineId);
+      promises.push(
+        googleSearchService.searchAll(selectedTerm, state.selectedLanguage)
+      );
+    }
+
+    try {
+      const results = await Promise.allSettled(promises);
+      
+      // Handle AI explanation result
+      const explanationResult = results[0];
+      if (explanationResult.status === 'fulfilled' && explanationResult.value.success) {
+        setExplanation(explanationResult.value.data);
       } else {
-        setExplanation(`<span class="text-red-600">${result.error}</span>`);
+        const error = explanationResult.status === 'fulfilled' ? 
+          explanationResult.value.error : 
+          explanationResult.reason?.message || 'Unknown error';
+        setExplanation(`<span class="text-red-600">${error}</span>`);
       }
+
+      // Handle Google search result (if available)
+      if (results.length > 1) {
+        const searchResult = results[1];
+        if (searchResult.status === 'fulfilled' && searchResult.value.success) {
+          setSearchResults(searchResult.value.data);
+        }
+        setIsLoadingSearch(false);
+      }
+
     } catch (error) {
       setExplanation(`<span class="text-red-600">${t('articleViewer.errors.explanationFailed')}</span>`);
     } finally {
@@ -362,35 +399,17 @@ Please provide the translation with the exact same HTML structure, translating o
         </div>
       </div>
 
-      {/* Tooltip for explanations */}
+      {/* Enhanced Tooltip for explanations */}
       {showTooltip && (
-        <div
-          ref={tooltipRef}
-          className="fixed bg-white border border-gray-300 rounded-lg shadow-xl p-4 max-w-xs z-50 transform -translate-x-1/2"
-          style={{
-            left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`,
-          }}
-        >
-          <div className="text-sm">
-            <div className="font-semibold text-gray-900 mb-2 border-b pb-1">
-              {selectedText}
-            </div>
-            <div 
-              className="text-gray-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: explanation }}
-            />
-            {isExplaining && (
-              <div className="flex items-center mt-2 text-sky-600">
-                <svg className="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span className="text-xs">{t('articleViewer.loading.general')}</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <EnhancedTooltip
+          selectedText={selectedText}
+          explanation={explanation}
+          isExplaining={isExplaining}
+          position={tooltipPosition}
+          searchResults={searchResults}
+          isLoadingSearch={isLoadingSearch}
+          onClose={() => setShowTooltip(false)}
+        />
       )}      {/* Key Points Modal */}
       <Modal
         isOpen={showKeyPointsModal}

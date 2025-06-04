@@ -2,7 +2,42 @@
 export const API_CONFIG = {
   IDENTITY_BASE_URL: 'https://identity.api.bg.cluster.vecto.digital/api',
   INDEXING_BASE_URL: 'https://indexing.api.bg.cluster.vecto.digital/api',
-  GEMINI_API_ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/'
+  GEMINI_API_ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/',
+  GOOGLE_CUSTOM_SEARCH_ENDPOINT: 'https://www.googleapis.com/customsearch/v1'
+};
+
+// Google Search Configuration
+export const GOOGLE_SEARCH_CONFIG = {
+  MAX_RESULTS_PER_SEARCH: 10,
+  DEFAULT_IMAGE_COUNT: 6,
+  DEFAULT_LINK_COUNT: 5,
+  DEFAULT_CITATION_COUNT: 5,
+  SEARCH_TIMEOUT: 10000, // 10 seconds
+  RELIABLE_DOMAINS: [
+    'wikipedia.org',
+    'britannica.com',
+    'edu',
+    'gov',
+    'org',
+    'nationalgeographic.com',
+    'smithsonianmag.com',
+    'bbc.com',
+    'cnn.com',
+    'reuters.com',
+    'ap.org'
+  ],
+  ACADEMIC_DOMAINS: [
+    'scholar.google.com',
+    'jstor.org',
+    'pubmed.ncbi.nlm.nih.gov',
+    'researchgate.net',
+    'academia.edu',
+    'arxiv.org',
+    'ncbi.nlm.nih.gov',
+    'springer.com',
+    'sciencedirect.com',
+    'wiley.com'
+  ]
 };
 
 // Difficulty Level Mappings (must be defined before getQuizJsonSchema)

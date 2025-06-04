@@ -34,7 +34,9 @@ const initialState = {
   // API configuration
   apiKeys: {
     gemini: '',
-  },  // UI state
+    googleSearch: '',
+  },
+  googleSearchEngineId: '',  // UI state
   sidebarOpen: false,
   activeTab: 'explorer', // Only 'explorer' now - quiz removed
   theme: 'light',
@@ -69,6 +71,7 @@ const ActionTypes = {
   
   // API
   SET_API_KEY: 'SET_API_KEY',
+  SET_GOOGLE_SEARCH_ENGINE_ID: 'SET_GOOGLE_SEARCH_ENGINE_ID',
     // UI
   TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR',
   SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
@@ -186,6 +189,16 @@ function appReducer(state, action) {
         apiKeys: newApiKeys
       };
     
+    case ActionTypes.SET_GOOGLE_SEARCH_ENGINE_ID:
+      // Safely store to localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('googleSearchEngineId', action.payload);
+      }
+      return {
+        ...state,
+        googleSearchEngineId: action.payload
+      };
+    
     case ActionTypes.TOGGLE_SIDEBAR:
       return {
         ...state,
@@ -282,6 +295,22 @@ export function AppProvider({ children }) {
       dispatch({
         type: ActionTypes.SET_API_KEY,
         payload: { type: 'gemini', key: geminiKey }
+      });
+    }
+
+    const googleSearchKey = getFromLocalStorage('googleSearchApiKey');
+    if (googleSearchKey) {
+      dispatch({
+        type: ActionTypes.SET_API_KEY,
+        payload: { type: 'googleSearch', key: googleSearchKey }
+      });
+    }
+
+    const googleSearchEngineId = getFromLocalStorage('googleSearchEngineId');
+    if (googleSearchEngineId) {
+      dispatch({
+        type: ActionTypes.SET_GOOGLE_SEARCH_ENGINE_ID,
+        payload: googleSearchEngineId
       });
     }
 
