@@ -41,6 +41,7 @@ const initialState = {
   loading: false,
   error: null,
   success: null,
+  selectedLanguage: 'en', // Default to English
   
   // Quiz state for article viewer
   showQuizModal: false,
@@ -75,6 +76,7 @@ const ActionTypes = {
   SET_ERROR: 'SET_ERROR',
   SET_SUCCESS: 'SET_SUCCESS',
   CLEAR_MESSAGES: 'CLEAR_MESSAGES',
+  SET_SELECTED_LANGUAGE: 'SET_SELECTED_LANGUAGE',
   
   // Quiz modal management
   SHOW_QUIZ_MODAL: 'SHOW_QUIZ_MODAL',
@@ -222,6 +224,12 @@ function appReducer(state, action) {
         success: null
       };
     
+    case ActionTypes.SET_SELECTED_LANGUAGE:
+      return {
+        ...state,
+        selectedLanguage: action.payload
+      };
+    
     case ActionTypes.SHOW_QUIZ_MODAL:
       return {
         ...state,
@@ -276,6 +284,13 @@ export function AppProvider({ children }) {
         payload: { type: 'gemini', key: geminiKey }
       });
     }
+
+    // Initialize selected language from localStorage
+    const savedLanguage = getFromLocalStorage('selectedLanguage', 'en');
+    dispatch({
+      type: ActionTypes.SET_SELECTED_LANGUAGE,
+      payload: savedLanguage
+    });
 
     // Check for existing auth token
     const token = getFromLocalStorage('accessToken');

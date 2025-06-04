@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useApp } from '../../context/AppContext';
 
 // Import flag components from country-flag-icons
 import { AM as AmFlag, US as UsFlag, RU as RuFlag } from 'country-flag-icons/react/3x2';
@@ -27,6 +28,7 @@ function FlagIcon({ country, className = "" }) {
 
 function LanguageSelector() {
   const { i18n, t } = useTranslation();
+  const { dispatch, ActionTypes } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('en'); // Default to 'en' for SSR
   const [isHydrated, setIsHydrated] = useState(false);
@@ -55,6 +57,10 @@ function LanguageSelector() {
 
   const handleLanguageChange = (languageCode) => {
     i18n.changeLanguage(languageCode);
+    dispatch({
+      type: ActionTypes.SET_SELECTED_LANGUAGE,
+      payload: languageCode
+    });
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem('selectedLanguage', languageCode);
     }
