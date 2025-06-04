@@ -112,8 +112,13 @@ function ArticleViewer() {
       console.log('Google Search API configured, initiating search for:', selectedTerm);
       setIsLoadingSearch(true);
       googleSearchService.initializeAPI(state.apiKeys.googleSearch, state.googleSearchEngineId);
+      
+      // Pass article context to improve search relevance
+      const articleContext = contentToUse ? contentToUse.substring(0, 2000) : ''; // First 2000 chars for context
+      console.log('Passing article context to search, length:', articleContext.length);
+      
       promises.push(
-        googleSearchService.searchAll(selectedTerm, state.selectedLanguage)
+        googleSearchService.searchAll(selectedTerm, state.selectedLanguage, articleContext)
       );
     } else {
       console.log('Google Search API not configured:', {
@@ -140,7 +145,10 @@ function ArticleViewer() {
       if (results.length > 1) {
         const searchResult = results[1];
         if (searchResult.status === 'fulfilled' && searchResult.value.success) {
-          setSearchResults(searchResult.value.data);
+          console.log('📊 Setting search results:', searchResult.value);
+          setSearchResults(searchResult.value);
+        } else {
+          console.log('❌ Search failed:', searchResult);
         }
       }
       

@@ -22,10 +22,10 @@ function EnhancedTooltip({
     { id: 'citations', label: t('tooltip.citations'), icon: '📚' }
   ];
 
-  const hasResults = searchResults && (
-    searchResults.images?.length > 0 ||
-    searchResults.webLinks?.length > 0 ||
-    searchResults.citations?.length > 0
+  const hasResults = searchResults && searchResults.data && (
+    searchResults.data.images?.length > 0 ||
+    searchResults.data.webLinks?.length > 0 ||
+    searchResults.data.citations?.length > 0
   );
 
   // Debug logging
@@ -34,7 +34,11 @@ function EnhancedTooltip({
     isLoadingSearch,
     isGoogleSearchConfigured,
     hasResults,
-    activeTab
+    activeTab,
+    searchResultsData: searchResults?.data,
+    imagesLength: searchResults?.data?.images?.length,
+    webLinksLength: searchResults?.data?.webLinks?.length,
+    citationsLength: searchResults?.data?.citations?.length
   });
 
   return (
@@ -112,9 +116,9 @@ function EnhancedTooltip({
               <div className="flex justify-center py-4">
                 <LoadingSpinner size="sm" text={t('tooltip.loadingImages')} />
               </div>
-            ) : searchResults?.images?.length > 0 ? (
+            ) : searchResults?.data?.images?.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
-                {searchResults.images.map((image, index) => (
+                {searchResults.data.images.map((image, index) => (
                   <div key={index} className="group cursor-pointer" onClick={() => window.open(image.contextLink, '_blank')}>
                     <div className="relative overflow-hidden rounded-lg border border-gray-200 hover:border-sky-300 transition-all duration-200 hover:shadow-md">
                       <img
@@ -180,9 +184,9 @@ function EnhancedTooltip({
               <div className="flex justify-center py-4">
                 <LoadingSpinner size="sm" text={t('tooltip.loadingLinks')} />
               </div>
-            ) : searchResults?.webLinks?.length > 0 ? (
+            ) : searchResults?.data?.webLinks?.length > 0 ? (
               <div className="space-y-3">
-                {searchResults.webLinks.map((link, index) => (
+                {searchResults.data.webLinks.map((link, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 hover:border-sky-300 transition-all duration-200">
                     <a
                       href={link.link}
@@ -233,9 +237,9 @@ function EnhancedTooltip({
               <div className="flex justify-center py-4">
                 <LoadingSpinner size="sm" text={t('tooltip.loadingCitations')} />
               </div>
-            ) : searchResults?.citations?.length > 0 ? (
+            ) : searchResults?.data?.citations?.length > 0 ? (
               <div className="space-y-3">
-                {searchResults.citations.map((citation, index) => (
+                {searchResults.data.citations.map((citation, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 hover:border-sky-300 transition-all duration-200">
                     <a
                       href={citation.link}
