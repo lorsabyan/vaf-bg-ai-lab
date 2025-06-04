@@ -346,24 +346,6 @@ Please provide the translation with the exact same HTML structure, translating o
         isLoadingTranslation={isLoadingTranslation}
       />
       
-      {/* Article Header */}
-      <div className="border-b border-gray-200 p-4 bg-gray-50">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold text-gray-900 line-clamp-2">
-            {state.selectedArticle.mainTitle || state.selectedArticle.shortTitle}
-          </h2>
-        </div>
-        
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <span>ID: {state.selectedArticle.id}</span>
-          {state.selectedArticle.categoryName && (
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-              {state.selectedArticle.categoryName}
-            </span>
-          )}
-        </div>
-      </div>
-
       {/* Article Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-6">
