@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import quizService from '../../services/quizService';
 import articleService from '../../services/articleService';
-import { GEMINI_MODELS, DEFAULT_QUIZ_INSTRUCTIONS } from '../../utils/constants';
+import { GEMINI_MODELS, QUIZ_INSTRUCTIONS_BY_LANGUAGE } from '../../utils/constants';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import Modal from '../ui/Modal';
@@ -15,10 +15,21 @@ function QuizModal() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   
+  // Get language-specific default instructions
+  const getDefaultInstructions = (language) => {
+    return QUIZ_INSTRUCTIONS_BY_LANGUAGE[language]?.instructions || 
+           QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy.instructions;
+  };
+
   // Form state
-  const [instructions, setInstructions] = useState(DEFAULT_QUIZ_INSTRUCTIONS);
+  const [instructions, setInstructions] = useState(getDefaultInstructions(state.selectedLanguage));
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-preview-05-20');
   const [temperature, setTemperature] = useState(0.7);
+
+  // Update instructions when language changes
+  useEffect(() => {
+    setInstructions(getDefaultInstructions(state.selectedLanguage));
+  }, [state.selectedLanguage]);
 
   const handleClose = () => {
     dispatch({ type: ActionTypes.HIDE_QUIZ_MODAL });
@@ -63,7 +74,8 @@ function QuizModal() {
         instructions,
         articleContent: formattedContent.html,
         model: selectedModel,
-        temperature
+        temperature,
+        targetLanguage: state.selectedLanguage
       });
 
       if (result.success && result.data && result.data.questions && result.data.questions.length > 0) {

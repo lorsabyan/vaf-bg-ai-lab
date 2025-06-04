@@ -1,16 +1,48 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
-import { getArmenianDifficulty } from '../../utils/constants';
+import { DIFFICULTY_MAPPINGS } from '../../utils/constants';
+import { useApp } from '../../context/AppContext';
 
 const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
   const { t } = useTranslation();
+  const { state } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [questionFeedback, setQuestionFeedback] = useState({}); // Track feedback for each question
   const [checkedQuestions, setCheckedQuestions] = useState({}); // Track which questions have been checked
+
+  // Helper function to get difficulty text in current language
+  const getDifficultyText = (difficulty) => {
+    const difficultyMappings = DIFFICULTY_MAPPINGS[state.selectedLanguage] || DIFFICULTY_MAPPINGS.hy;
+    
+    // If difficulty is already in the target language, return it
+    if (Object.values(difficultyMappings).includes(difficulty)) {
+      return difficulty;
+    }
+    
+    // Try to find the corresponding difficulty in current language
+    // Check if difficulty matches any English values and map to current language
+    const englishMappings = DIFFICULTY_MAPPINGS.en;
+    for (const [key, englishValue] of Object.entries(englishMappings)) {
+      if (englishValue.toLowerCase() === difficulty.toLowerCase()) {
+        return difficultyMappings[key];
+      }
+    }
+    
+    // Check if difficulty matches any Armenian values and map to current language
+    const armenianMappings = DIFFICULTY_MAPPINGS.hy;
+    for (const [key, armenianValue] of Object.entries(armenianMappings)) {
+      if (armenianValue === difficulty) {
+        return difficultyMappings[key];
+      }
+    }
+    
+    // If no match found, return as is
+    return difficulty;
+  };
 
   const currentQuestion = quiz?.questions?.[currentQuestionIndex];
   const totalQuestions = quiz?.questions?.length || 0;
@@ -252,7 +284,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
             </h3>            {/* Difficulty Display */}
             {currentQuestion?.difficulty && (
               <p className="text-sm text-gray-500 mb-4">
-                <span className="font-medium">{t('quiz.interfacePage.difficulty')}</span> {getArmenianDifficulty(currentQuestion.difficulty)}
+                <span className="font-medium">{t('quiz.interfacePage.difficulty')}</span> {getDifficultyText(currentQuestion.difficulty)}
               </p>
             )}<div className="space-y-3">
               {currentQuestion?.options?.map((option, index) => {

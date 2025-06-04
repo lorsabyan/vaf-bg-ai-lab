@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { API_CONFIG, QUIZ_JSON_SCHEMA } from '../utils/constants';
+import { API_CONFIG, getQuizJsonSchema, QUIZ_INSTRUCTIONS_BY_LANGUAGE, DEFAULT_QUIZ_INSTRUCTIONS } from '../utils/constants';
 
 class QuizService {
   constructor() {
@@ -26,6 +26,7 @@ class QuizService {
       articleContent,
       model = 'gemini-2.5-flash-preview-05-20',
       temperature = 0.7,
+      targetLanguage = 'en'
     } = options;
 
     if (!this.genAI) {
@@ -44,7 +45,16 @@ class QuizService {
       throw new Error('Article content is not properly formatted. Please try selecting a different article.');
     }
 
-    const fullPrompt = `${instructions}\n\nOpenAPI JSON scheme\n---\n${JSON.stringify(QUIZ_JSON_SCHEMA, null, 2)}\n\nHTML article\n---\n${articleContent}`;
+    // Get language-specific instructions and schema
+    const languageConfig = QUIZ_INSTRUCTIONS_BY_LANGUAGE[targetLanguage] || QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy;
+    const quizSchema = getQuizJsonSchema(targetLanguage);
+    
+    // Use language-specific instructions if available, otherwise use provided instructions
+    const finalInstructions = instructions === DEFAULT_QUIZ_INSTRUCTIONS ? 
+      languageConfig.instructions : 
+      `${instructions}\n\nGenerate the quiz in ${languageConfig.language}.`;
+
+    const fullPrompt = `${finalInstructions}\n\nOpenAPI JSON scheme\n---\n${JSON.stringify(quizSchema, null, 2)}\n\nHTML article\n---\n${articleContent}`;
 
     try {
       const generativeModel = this.genAI.getGenerativeModel({ model });
