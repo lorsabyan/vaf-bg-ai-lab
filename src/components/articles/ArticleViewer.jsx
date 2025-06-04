@@ -38,7 +38,13 @@ function ArticleViewer() {
     setTranslatedContent(null);
     setIsShowingTranslation(false);
     setIsSelectMode(false);
+    setKeyPoints(''); // Clear key points when article changes
   }, [state.selectedArticle]);
+
+  // Clear key points when translation state changes
+  useEffect(() => {
+    setKeyPoints('');
+  }, [isShowingTranslation]);
 
   const handleTextSelection = async () => {
     if (!isSelectMode) return;
@@ -115,11 +121,27 @@ function ArticleViewer() {
     setIsLoadingKeyPoints(true);
     setKeyPoints('');
 
-    const promptText = `${t('articleViewer.prompts.keyPointsPrefix')}
+    const contentToAnalyze = isShowingTranslation && translatedContent ? 
+      translatedContent.replace(/<[^>]*>/g, '') : 
+      formattedContent.plainText;
+
+    const targetLanguage = t(`language.languages.${state.selectedLanguage}`);
+    
+    const promptText = `Extract the key points from the following article and present them in ${targetLanguage}.
+
+REQUIREMENTS:
+1. Provide 5-8 main key points
+2. Write each point as a complete sentence
+3. Use clear and concise language in ${targetLanguage}
+4. Focus on the most important information
+5. Format as a bullet list
+
+Article content:
 ---
-${formattedContent.plainText}
+${contentToAnalyze}
 ---
-${t('articleViewer.prompts.keyPointsInstructions')}`;
+
+Please provide the key points in ${targetLanguage}, formatted as a bullet list with clear, informative sentences.`;
 
     try {
       if (!quizService.genAI) {
@@ -390,7 +412,7 @@ Please provide the translation with the exact same HTML structure, translating o
       <Modal
         isOpen={showKeyPointsModal}
         onClose={() => setShowKeyPointsModal(false)}
-        title={t('articleViewer.modals.keyPointsTitle')}
+        title={`${t('articleViewer.modals.keyPointsTitle')}${isShowingTranslation ? ` (${t(`language.languages.${state.selectedLanguage}`)})` : ''}`}
         size="lg"
       >
         <div className="p-6">
