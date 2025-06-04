@@ -39,11 +39,12 @@ function EnhancedTooltip({
 
   return (
     <div
-      className="fixed bg-white border border-gray-300 rounded-lg shadow-xl max-w-md z-50 transform -translate-x-1/2"
+      className="fixed bg-white border border-gray-300 rounded-lg shadow-xl max-w-lg z-50 transform -translate-x-1/2"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        maxHeight: '400px'
+        maxHeight: '500px',
+        minWidth: '400px'
       }}
     >
       {/* Header */}
@@ -83,7 +84,7 @@ function EnhancedTooltip({
       </div>
 
       {/* Content */}
-      <div className="p-3 max-h-80 overflow-y-auto">
+      <div className="p-4 max-h-96 overflow-y-auto">
         {/* Explanation Tab */}
         {activeTab === 'explanation' && (
           <div className="text-sm">
@@ -112,27 +113,42 @@ function EnhancedTooltip({
                 <LoadingSpinner size="sm" text={t('tooltip.loadingImages')} />
               </div>
             ) : searchResults?.images?.length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-4">
                 {searchResults.images.map((image, index) => (
-                  <div key={index} className="group">
-                    <div className="relative">
+                  <div key={index} className="group cursor-pointer" onClick={() => window.open(image.contextLink, '_blank')}>
+                    <div className="relative overflow-hidden rounded-lg border border-gray-200 hover:border-sky-300 transition-colors">
                       <img
                         src={image.thumbnailLink}
                         alt={image.title}
-                        className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => window.open(image.contextLink, '_blank')}
+                        className="w-full h-32 object-cover hover:scale-105 transition-transform duration-200"
                         onError={(e) => {
                           e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
                         }}
                       />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all rounded flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full p-2 shadow-lg">
+                          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Fallback for broken images */}
+                      <div className="absolute inset-0 bg-gray-100 items-center justify-center hidden">
+                        <div className="text-center text-gray-400">
+                          <svg className="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-xs">Image unavailable</p>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">{image.title}</p>
-                    <p className="text-xs text-gray-400">{image.displayLink}</p>
+                    <div className="mt-2 px-1">
+                      <h4 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-sky-700 transition-colors">
+                        {image.title}
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1">{image.displayLink}</p>
+                    </div>
                   </div>
                 ))}
               </div>
