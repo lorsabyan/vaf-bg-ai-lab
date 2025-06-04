@@ -77,8 +77,9 @@ function ApiKeyModal({ isOpen, onClose }) {
     
     try {
       // Test the API key and engine ID
-      const googleSearchService = new GoogleSearchService(googleSearchApiKey.trim(), googleSearchEngineId.trim());
-      await googleSearchService.searchImages('test', 1); // Test search
+      const testSearchService = new GoogleSearchService();
+      testSearchService.initializeAPI(googleSearchApiKey.trim(), googleSearchEngineId.trim());
+      await testSearchService.searchImages('test', 'en', 1); // Test search
       
       // Save to state and localStorage
       dispatch({

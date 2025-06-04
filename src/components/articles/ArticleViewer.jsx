@@ -80,6 +80,7 @@ function ArticleViewer() {
     setShowTooltip(true);
     setIsExplaining(true);
     setSearchResults(null);
+    setIsLoadingSearch(false); // Initialize to false
     setExplanation(t('articleViewer.loading.explanation'));
 
     // Start both AI explanation and Google search concurrently
@@ -100,12 +101,25 @@ function ArticleViewer() {
     );
 
     // Google Search (if configured)
+    console.log('Checking Google Search configuration:', {
+      hasApiKey: !!state.apiKeys.googleSearch,
+      apiKeyValue: state.apiKeys.googleSearch ? `${state.apiKeys.googleSearch.substring(0, 10)}...` : 'null',
+      hasEngineId: !!state.googleSearchEngineId,
+      engineIdValue: state.googleSearchEngineId || 'null'
+    });
+    
     if (state.apiKeys.googleSearch && state.googleSearchEngineId) {
+      console.log('Google Search API configured, initiating search for:', selectedTerm);
       setIsLoadingSearch(true);
       googleSearchService.initializeAPI(state.apiKeys.googleSearch, state.googleSearchEngineId);
       promises.push(
         googleSearchService.searchAll(selectedTerm, state.selectedLanguage)
       );
+    } else {
+      console.log('Google Search API not configured:', {
+        apiKey: !!state.apiKeys.googleSearch,
+        engineId: !!state.googleSearchEngineId
+      });
     }
 
     try {
@@ -128,8 +142,10 @@ function ArticleViewer() {
         if (searchResult.status === 'fulfilled' && searchResult.value.success) {
           setSearchResults(searchResult.value.data);
         }
-        setIsLoadingSearch(false);
       }
+      
+      // Always reset loading state
+      setIsLoadingSearch(false);
 
     } catch (error) {
       setExplanation(`<span class="text-red-600">${t('articleViewer.errors.explanationFailed')}</span>`);
@@ -408,6 +424,7 @@ Please provide the translation with the exact same HTML structure, translating o
           position={tooltipPosition}
           searchResults={searchResults}
           isLoadingSearch={isLoadingSearch}
+          isGoogleSearchConfigured={!!(state.apiKeys.googleSearch && state.googleSearchEngineId)}
           onClose={() => setShowTooltip(false)}
         />
       )}      {/* Key Points Modal */}

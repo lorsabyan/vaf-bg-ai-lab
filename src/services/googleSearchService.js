@@ -5,13 +5,22 @@ class GoogleSearchService {
   }
 
   initializeAPI(apiKey, searchEngineId) {
+    console.log('GoogleSearchService.initializeAPI called with:', {
+      apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : 'null',
+      searchEngineId: searchEngineId || 'null'
+    });
     this.apiKey = apiKey;
     this.searchEngineId = searchEngineId;
   }
 
   async searchImages(query, language = 'hy', maxResults = 3) {
+    console.log('searchImages called:', { query, language, maxResults });
     if (!this.apiKey || !this.searchEngineId) {
-      throw new Error('Google Search API not configured');
+      const missingItems = [];
+      if (!this.apiKey) missingItems.push('API Key');
+      if (!this.searchEngineId) missingItems.push('Search Engine ID');
+      console.error('Google Search API not configured. Missing:', missingItems.join(', '));
+      throw new Error(`Google Search API not configured. Missing: ${missingItems.join(', ')}`);
     }
 
     try {
@@ -46,7 +55,10 @@ class GoogleSearchService {
 
   async searchWeb(query, language = 'hy', maxResults = 3) {
     if (!this.apiKey || !this.searchEngineId) {
-      throw new Error('Google Search API not configured');
+      const missingItems = [];
+      if (!this.apiKey) missingItems.push('API Key');
+      if (!this.searchEngineId) missingItems.push('Search Engine ID');
+      throw new Error(`Google Search API not configured. Missing: ${missingItems.join(', ')}`);
     }
 
     try {
@@ -81,7 +93,10 @@ class GoogleSearchService {
 
   async searchCitations(query, language = 'hy', maxResults = 3) {
     if (!this.apiKey || !this.searchEngineId) {
-      throw new Error('Google Search API not configured');
+      const missingItems = [];
+      if (!this.apiKey) missingItems.push('API Key');
+      if (!this.searchEngineId) missingItems.push('Search Engine ID');
+      throw new Error(`Google Search API not configured. Missing: ${missingItems.join(', ')}`);
     }
 
     try {
@@ -133,6 +148,7 @@ class GoogleSearchService {
   }
 
   async searchAll(query, language = 'hy') {
+    console.log('GoogleSearchService.searchAll called with:', { query, language });
     try {
       const [images, webLinks, citations] = await Promise.allSettled([
         this.searchImages(query, language, 2),
@@ -140,7 +156,7 @@ class GoogleSearchService {
         this.searchCitations(query, language, 2)
       ]);
 
-      return {
+      const result = {
         success: true,
         data: {
           images: images.status === 'fulfilled' && images.value.success ? images.value.data : [],
@@ -148,6 +164,9 @@ class GoogleSearchService {
           citations: citations.status === 'fulfilled' && citations.value.success ? citations.value.data : []
         }
       };
+      
+      console.log('GoogleSearchService.searchAll result:', result);
+      return result;
     } catch (error) {
       console.error('Combined search error:', error);
       return {
