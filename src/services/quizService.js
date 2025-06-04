@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { API_CONFIG, getQuizJsonSchema, QUIZ_INSTRUCTIONS_BY_LANGUAGE, DEFAULT_QUIZ_INSTRUCTIONS } from '../utils/constants';
+import { API_CONFIG, getQuizJsonSchema, QUIZ_INSTRUCTIONS_BY_LANGUAGE, DEFAULT_QUIZ_INSTRUCTIONS, EXPLANATION_PROMPTS_BY_LANGUAGE, EXPLANATION_ERROR_MESSAGES } from '../utils/constants';
 
 class QuizService {
   constructor() {
@@ -138,20 +138,19 @@ class QuizService {
     }
   }
 
-  async explainTerm(term, context, apiKey) {
+  async explainTerm(term, context, apiKey, targetLanguage = 'hy') {
     if (!apiKey) {
-      throw new Error('Gemini API բանալին տրամադրված չէ։');
+      const errorMessages = EXPLANATION_ERROR_MESSAGES[targetLanguage] || EXPLANATION_ERROR_MESSAGES.hy;
+      throw new Error(errorMessages.apiKeyRequired);
     }
 
     if (!this.genAI) {
       this.initializeAPI(apiKey);
     }
 
-    const promptText = `Հոդվածի ամբողջական տեքստը հետևյալն է՝
----
-${context}
----
-Հաշվի առնելով վերոնշյալ հոդվածի համատեքստը, խնդրում եմ բացատրիր «${term}» տերմինը կամ արտահայտությունը հայերենով։ Տուր հակիրճ և հասկանալի բացատրություն։ Պատասխանը ֆորմատավորիր **միայն որպես HTML**։ **Մի՛ ներառիր որևէ նախաբան կամ վերջաբան, այլ միայն բացատրությունը։ Մի՛ օգտագործիր markdown:** Օգտագործիր <strong> թեգը թավատառի համար, <em> թեգը շեղատառի համար, և <br> թեգը տողադարձերի համար։`;
+    // Get language-specific prompt configuration
+    const languageConfig = EXPLANATION_PROMPTS_BY_LANGUAGE[targetLanguage] || EXPLANATION_PROMPTS_BY_LANGUAGE.hy;
+    const promptText = languageConfig.promptTemplate(term, context);
 
     try {
       const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
@@ -182,15 +181,11 @@ ${context}
       
       explanation = explanation.trim();
 
-      // Remove common intro phrases
-      const introPhrasesToRemove = [
-        `Ահա «${term}» տերմինի բացատրությունը HTML ֆորմատով.`,
-        `Ահա «${term}» տերմինի բացատրությունը.`,
-        `Սա «${term}» տերմինի բացատրությունն է HTML ֆորմատով.`,
-        `Սա «${term}» տերմինի բացատրությունն է.`
-      ];
+      // Remove common intro phrases based on target language
+      const cleanupPhrases = languageConfig.getCleanupPhrases ? 
+        languageConfig.getCleanupPhrases(term) : [];
       
-      for (const phrase of introPhrasesToRemove) {
+      for (const phrase of cleanupPhrases) {
         if (explanation.toLowerCase().startsWith(phrase.toLowerCase())) {
           explanation = explanation.substring(phrase.length).trim();
           while (explanation.toLowerCase().startsWith("<br>")) {
@@ -206,9 +201,10 @@ ${context}
       };
     } catch (error) {
       console.error('Error explaining term:', error);
+      const errorMessages = EXPLANATION_ERROR_MESSAGES[targetLanguage] || EXPLANATION_ERROR_MESSAGES.hy;
       return {
         success: false,
-        error: `Բացատրությունը բերելիս սխալ տեղի ունեցավ։ (${error.message})`,
+        error: `${errorMessages.explanationFailed} (${error.message})`,
       };
     }
   }

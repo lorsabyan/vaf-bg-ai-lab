@@ -36,7 +36,7 @@ export const QUIZ_INSTRUCTIONS_BY_LANGUAGE = {
     language: 'հայերեն'
   },
   hyw: {
-    instructions: `Ստեղծէք մէկ ընտրանքով համապարփակ թեստ արեւմտահայերէն, ֆորմատաւորուած որպէս JSON օբյեկտ ստորեւ տրուած OpenAPI սխեմայով: Արտահանեցէք մաքուր JSON տրուած HTML հոդուածէն: Հոդուածը գրուած է արեւմտահայերէն եւ փակուած է <article> էթիքի մէջ id ատրիպուտով: Հանեցէք հոդուածի ID-ն article էթիքի id ատրիպուտէն եւ օգտագործեցէք զայն articleIds դաշտում իւրաքանչիւր հարցի համար: Առաջնահերթութիւն տուէք առաւելագոյն թուով համապատասխան եւ բազմազան հարցեր գեներացնելուն: Օգտագործեցէք հայկական բարդութեան մակարդակները: "Հեշտ" - հեշտ հարցերի համար, "Միջին" - միջին հարցերի համար, "Բարդ" - բարդ հարցերի համար:`,
+    instructions: `Ստեղծէք մէկ ընտրանքով համապարփակ թեստ արեւմտահայերէն, ֆորմատաւորուած որպէս JSON օբյեկտ ստորեւ տրուած OpenAPI սխեմայով: Արտահանեցէք մաքուր JSON տրուած HTML հոդուածէն: Հոդուածը գրուած է արեւմտահայերէն եւ փակված է <article> էթիքի մէջ id ատրիպուտով: Հանեցէք հոդուածի ID-ն article էթիքի id ատրիպուտէն եւ օգտագործեցէք զայն articleIds դաշտում իւրաքանչիւր հարցի համար: Առաջնահերթութիւն տուէք առաւելագոյն թուով համապատասխան եւ բազմազան հարցեր գեներացնելուն: Օգտագործեցէք հայկական բարդութեան մակարդակները: "Հեշտ" - հեշտ հարցերի համար, "Միջին" - միջին հարցերի համար, "Բարդ" - բարդ հարցերի համար:`,
     language: 'արեւմտահայերէն'
   },
   en: {
@@ -63,40 +63,84 @@ export const QUIZ_TEMPLATES = {
   }
 };
 
-// Default quiz instructions (now QUIZ_INSTRUCTIONS_BY_LANGUAGE is defined)
-export const DEFAULT_QUIZ_INSTRUCTIONS = QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy.instructions;
+// Language-specific explanation prompts
+export const EXPLANATION_PROMPTS_BY_LANGUAGE = {
+  hy: {
+    promptTemplate: (term, context) => `Հոդվածի ամբողջական տեքստը հետևյալն է՝
+---
+${context}
+---
+Հաշվի առնելով վերոնշյալ հոդվածի համատեքստը, խնդրում եմ բացատրիր «${term}» տերմինը կամ արտահայտությունը հայերենով։ Տուր հակիրճ և հասկանալի բացատրություն։ Պատասխանը ֆորմատավորիր **միայն որպես HTML**։ **Մի՛ ներառիր որևէ նախաբան կամ վերջաբան, այլ միայն բացատրությունը։ Մի՛ օգտագործիր markdown:** Օգտագործիր <strong> թեգը թավատառի համար, <em> թեգը շեղատառի համար, և <br> թեգը տողադարձերի համար։`,
+    language: 'հայերենով',
+    getCleanupPhrases: (term) => [
+      `Ահա «${term}» տերմինի բացատրությունը HTML ֆորմատով.`,
+      `Ահա «${term}» տերմինի բացատրությունը.`,
+      `Սա «${term}» տերմինի բացատրությունն է HTML ֆորմատով.`,
+      `Սա «${term}» տերմինի բացատրությունն է.`
+    ]
+  },
+  hyw: {
+    promptTemplate: (term, context) => `Հոդուածի ամբողջական տեքստը հետեւեալն է՝
+---
+${context}
+---
+Հաշուի առնելով վերոնշեալ հոդուածի համատեքստը, խնդրում եմ բացատրիր «${term}» տերմինը կամ արտահայտութիւնը արեւմտահայերէն։ Տուր հակիրճ եւ հասկանալի բացատրութիւն։ Պատասխանը ֆորմատաւորիր **միայն որպէս HTML**։ **Մի՛ ներառիր որեւէ նախապան կամ վերջապան, այլ միայն բացատրութիւնը։ Մի՛ օգտագործիր markdown:** Օգտագործիր <strong> թեգը թաւատառի համար, <em> թեգը շեղատառի համար, եւ <br> թեգը տողադարձերի համար։`,
+    language: 'արեւմտահայերէն',
+    getCleanupPhrases: (term) => [
+      `Ահա «${term}» տերմինի բացատրութիւնը HTML ֆորմատով.`,
+      `Ահա «${term}» տերմինի բացատրութիւնը.`,
+      `Սա «${term}» տերմինի բացատրութիւնն է HTML ֆորմատով.`,
+      `Սա «${term}» տերմինի բացատրութիւնն է.`
+    ]
+  },
+  en: {
+    promptTemplate: (term, context) => `The complete article text is as follows:
+---
+${context}
+---
+Taking into account the context of the above article, please explain the term or expression "${term}" in English. Provide a concise and understandable explanation. Format the response **only as HTML**. **Do not include any introduction or conclusion, only the explanation. Do not use markdown:** Use <strong> tag for bold, <em> tag for italic, and <br> tag for line breaks.`,
+    language: 'in English',
+    getCleanupPhrases: (term) => [
+      `Here is the explanation of the term "${term}" in HTML format.`,
+      `Here is the explanation of the term "${term}".`,
+      `This is the explanation of the term "${term}" in HTML format.`,
+      `This is the explanation of the term "${term}".`
+    ]
+  },
+  ru: {
+    promptTemplate: (term, context) => `Полный текст статьи следующий:
+---
+${context}
+---
+Учитывая контекст вышеуказанной статьи, пожалуйста, объясните термин или выражение "${term}" на русском языке. Дайте краткое и понятное объяснение. Отформатируйте ответ **только как HTML**. **Не включайте никакого введения или заключения, только объяснение. Не используйте markdown:** Используйте тег <strong> для жирного шрифта, тег <em> для курсива и тег <br> для переносов строк.`,
+    language: 'на русском языке',
+    getCleanupPhrases: (term) => [
+      `Вот объяснение термина "${term}" в формате HTML.`,
+      `Вот объяснение термина "${term}".`,
+      `Это объяснение термина "${term}" в формате HTML.`,
+      `Это объяснение термина "${term}".`
+    ]
+  }
+};
 
-// JSON Schema for Quiz Generation (now DIFFICULTY_MAPPINGS is defined)
-export const getQuizJsonSchema = (language = 'hy') => {
-  const difficultyLevels = Object.values(DIFFICULTY_MAPPINGS[language] || DIFFICULTY_MAPPINGS.hy);
-  
-  return {
-    type: "object",
-    properties: {
-      quizTitle: { type: "string" },
-      quizDescription: { type: "string" },
-      questions: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            question: { type: "string" },
-            options: { type: "array", items: { type: "string" } },
-            answer: { type: "number" },
-            articleIds: { 
-              type: "array", 
-              items: { type: "string" },
-              description: "Array containing the article ID extracted from the article tag's id attribute"
-            },
-            explanation: { type: "string" },
-            difficulty: { type: "string", enum: difficultyLevels }
-          },
-          required: ["question", "options", "answer", "articleIds", "explanation", "difficulty"]
-        }
-      }
-    },
-    required: ["quizTitle", "quizDescription", "questions"]
-  };
+// Language-specific error messages for explanations
+export const EXPLANATION_ERROR_MESSAGES = {
+  hy: {
+    apiKeyRequired: 'Gemini API բանալին տրամադրված չէ։',
+    explanationFailed: 'Բացատրությունը բերելիս սխալ տեղի ունեցավ։'
+  },
+  hyw: {
+    apiKeyRequired: 'Gemini API բանալին տրամադրուած չէ։',
+    explanationFailed: 'Բացատրութիւնը բերելիս սխալ տեղի ունեցաւ։'
+  },
+  en: {
+    apiKeyRequired: 'Gemini API key is not provided.',
+    explanationFailed: 'An error occurred while fetching the explanation.'
+  },
+  ru: {
+    apiKeyRequired: 'Ключ API Gemini не предоставлен.',
+    explanationFailed: 'Произошла ошибка при получении объяснения.'
+  }
 };
 
 // Available Gemini Models

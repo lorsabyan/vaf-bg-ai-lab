@@ -85,7 +85,8 @@ function ArticleViewer() {
       const result = await quizService.explainTerm(
         selectedTerm,
         contentToUse,
-        state.apiKeys.gemini
+        state.apiKeys.gemini,
+        state.selectedLanguage
       );
 
       if (result.success) {
