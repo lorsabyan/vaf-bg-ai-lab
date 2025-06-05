@@ -200,6 +200,44 @@ src/
 - **EnhancedTooltip**: Multi-tab tooltip with images, links, and citations
 - **GoogleSearchService**: Integration with Google Custom Search API
 
+## Performance Optimizations
+
+The application has been optimized for performance with the following React optimizations:
+
+### 🚀 Memoization Strategy
+
+- **useMemo**: Expensive calculations cached to prevent unnecessary recalculation
+  - Article content formatting (HTML parsing and text extraction)
+  - Language-specific difficulty mappings
+  - Quiz question metadata processing
+  - Search result filtering and sorting
+
+- **useCallback**: Event handlers memoized to prevent child component re-renders
+  - Text selection handlers for AI explanations
+  - Quiz navigation and answer selection
+  - Modal and dialog interactions
+  - API call handlers for quiz generation and translation
+
+- **React.memo**: Components wrapped to prevent unnecessary re-renders
+  - Layout component for stable UI structure
+  - ArticleViewer for heavy content processing
+  - Quiz interface components for smooth interactions
+
+### ⚡ Performance Benefits
+
+- **Reduced Re-renders**: Significant reduction in unnecessary component updates
+- **Faster Text Processing**: Article formatting operations cached for reuse
+- **Smoother Interactions**: Quiz and article interactions respond faster
+- **Memory Efficiency**: Expensive operations computed only when dependencies change
+- **Better UX**: More responsive interface, especially on mobile devices
+
+### 🔧 Technical Implementation
+
+- Strategic use of dependency arrays in hooks to control re-computation
+- Content memoization for AI operations (explanations, translations, key points)
+- Event handler optimization to prevent child component cascading updates
+- Component-level memoization for heavy rendering operations
+
 ## Features in Detail
 
 ### AI Quiz Generation

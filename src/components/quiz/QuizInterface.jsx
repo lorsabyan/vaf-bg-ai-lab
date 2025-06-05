@@ -109,7 +109,8 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
                       <p className="font-medium text-gray-900 mb-2">
                         {index + 1}. {question.question}
                       </p>
-                      <div className="space-y-1 text-sm">                        {question.options.map((option, optIndex) => (
+                      <div className="space-y-1 text-sm">
+                        {question.options.map((option, optIndex) => (
                           <div key={optIndex} className={`p-2 rounded ${
                             optIndex === question.answer ? 'bg-green-100 text-green-800' :
                             optIndex === userAnswer && !isCorrect ? 'bg-red-100 text-red-800' :

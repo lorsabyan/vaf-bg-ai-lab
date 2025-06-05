@@ -5,16 +5,11 @@ class GoogleSearchService {
   }
 
   initializeAPI(apiKey, searchEngineId) {
-    console.log('GoogleSearchService.initializeAPI called with:', {
-      apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : 'null',
-      searchEngineId: searchEngineId || 'null'
-    });
     this.apiKey = apiKey;
     this.searchEngineId = searchEngineId;
   }
 
   async searchImages(query, language = 'hy', maxResults = 3, context = '') {
-    console.log('🔍 searchImages called:', { query, language, maxResults, hasContext: !!context });
     if (!this.apiKey || !this.searchEngineId) {
       const missingItems = [];
       if (!this.apiKey) missingItems.push('API Key');
@@ -44,31 +39,18 @@ class GoogleSearchService {
 
     for (const strategy of searchStrategies) {
       try {
-        console.log(`🚀 Trying ${strategy.name} image search strategy:`, strategy.query);
-        
         const searchQuery = encodeURIComponent(strategy.query);
         const url = `https://www.googleapis.com/customsearch/v1?key=${this.apiKey}&cx=${this.searchEngineId}&q=${searchQuery}&searchType=image&num=${maxResults}&safe=active${strategy.params}`;
-        
-        console.log(`📡 ${strategy.name} image search URL:`, url.replace(this.apiKey, 'API_KEY_HIDDEN'));
         
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log(`📊 ${strategy.name} API response status:`, response.status);
-        console.log(`📋 ${strategy.name} API response:`, {
-          totalResults: data.searchInformation?.totalResults,
-          itemsCount: data.items?.length || 0,
-          hasItems: !!data.items,
-          error: data.error
-        });
-
         if (!response.ok) {
-          console.error(`❌ ${strategy.name} API error:`, data.error);
+          console.error(`${strategy.name} API error:`, data.error);
           continue; // Try next strategy
         }
 
         if (data.items && data.items.length > 0) {
-          console.log(`✅ ${strategy.name} search succeeded with ${data.items.length} results`);
           return {
             success: true,
             data: data.items.map(item => ({
@@ -79,17 +61,14 @@ class GoogleSearchService {
               displayLink: item.displayLink
             }))
           };
-        } else {
-          console.log(`⚠️ ${strategy.name} search returned no items`);
         }
       } catch (error) {
-        console.error(`💥 ${strategy.name} search failed:`, error);
+        console.error(`${strategy.name} search failed:`, error);
         continue; // Try next strategy
       }
     }
     
     // If all strategies failed
-    console.error('🚫 All image search strategies failed');
     return {
       success: false,
       error: 'No images found with any search strategy'
@@ -107,7 +86,6 @@ class GoogleSearchService {
     try {
       // Enhanced query for educational web content
       const enhancedQuery = this.buildWebSearchQuery(query, language);
-      console.log('Enhanced web search query:', enhancedQuery);
       
       const searchQuery = encodeURIComponent(enhancedQuery);
       const url = `https://www.googleapis.com/customsearch/v1?key=${this.apiKey}&cx=${this.searchEngineId}&q=${searchQuery}&num=${maxResults}&safe=active&lr=lang_${language}`;
@@ -149,7 +127,6 @@ class GoogleSearchService {
     try {
       // Enhanced query for academic citations
       const enhancedQuery = this.buildCitationSearchQuery(query, language);
-      console.log('Enhanced citation search query:', enhancedQuery);
       
       const academicQuery = encodeURIComponent(enhancedQuery);
       const url = `https://www.googleapis.com/customsearch/v1?key=${this.apiKey}&cx=${this.searchEngineId}&q=${academicQuery}&num=${maxResults}&safe=active&lr=lang_${language}`;
@@ -232,7 +209,6 @@ class GoogleSearchService {
       enhancedQuery += ` ${simpleEnhancements.slice(0, 2).join(' ')}`;
     }
     
-    console.log('Simplified image search query:', { original: cleanQuery, enhanced: enhancedQuery });
     return enhancedQuery;
   }
 
@@ -324,7 +300,6 @@ class GoogleSearchService {
   }
 
   async searchAll(query, language = 'hy', context = '') {
-    console.log('GoogleSearchService.searchAll called with:', { query, language, hasContext: !!context });
     try {
       // Prioritize quality over quantity - reduce number of results but improve relevance
       const [images, webLinks, citations] = await Promise.allSettled([
@@ -353,7 +328,6 @@ class GoogleSearchService {
         }
       };
       
-      console.log('GoogleSearchService.searchAll result:', result);
       return result;
     } catch (error) {
       console.error('Combined search error:', error);

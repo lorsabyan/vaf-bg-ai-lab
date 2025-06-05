@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
 import { DIFFICULTY_MAPPINGS } from '../../utils/constants';
@@ -14,10 +14,13 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
   const [questionFeedback, setQuestionFeedback] = useState({}); // Track feedback for each question
   const [checkedQuestions, setCheckedQuestions] = useState({}); // Track which questions have been checked
 
-  // Helper function to get difficulty text in current language
-  const getDifficultyText = (difficulty) => {
-    const difficultyMappings = DIFFICULTY_MAPPINGS[state.selectedLanguage] || DIFFICULTY_MAPPINGS.hy;
-    
+  // Memoize difficulty mappings to avoid recalculation
+  const difficultyMappings = useMemo(() => {
+    return DIFFICULTY_MAPPINGS[state.selectedLanguage] || DIFFICULTY_MAPPINGS.hy;
+  }, [state.selectedLanguage]);
+
+  // Memoize the difficulty text helper function
+  const getDifficultyText = useCallback((difficulty) => {
     // If difficulty is already in the target language, return it
     if (Object.values(difficultyMappings).includes(difficulty)) {
       return difficulty;
@@ -42,11 +45,19 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
     
     // If no match found, return as is
     return difficulty;
-  };
+  }, [difficultyMappings]);
 
-  const currentQuestion = quiz?.questions?.[currentQuestionIndex];
-  const totalQuestions = quiz?.questions?.length || 0;
-  const handleAnswerSelect = (answerIndex) => {
+  // Memoize current question and quiz metadata
+  const currentQuestion = useMemo(() => {
+    return quiz?.questions?.[currentQuestionIndex];
+  }, [quiz?.questions, currentQuestionIndex]);
+  
+  const totalQuestions = useMemo(() => {
+    return quiz?.questions?.length || 0;
+  }, [quiz?.questions?.length]);
+  
+  // Memoize event handlers to prevent unnecessary re-renders
+  const handleAnswerSelect = useCallback((answerIndex) => {
     setAnswers(prev => ({
       ...prev,
       [currentQuestionIndex]: answerIndex
@@ -59,8 +70,9 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         [currentQuestionIndex]: null
       }));
     }
-  };
-  const handleCheckAnswer = () => {
+  }, [currentQuestionIndex, checkedQuestions]);
+  
+  const handleCheckAnswer = useCallback(() => {
     const userAnswer = answers[currentQuestionIndex];
     const correctAnswer = currentQuestion.answer;
     const isCorrect = userAnswer === correctAnswer;
@@ -81,22 +93,11 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         isAnswered: userAnswer !== undefined
       }
     }));
-  };
-  const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      calculateScore();
-    }
-  };
+  }, [answers, currentQuestionIndex, currentQuestion?.answer]);
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const calculateScore = () => {    let correctAnswers = 0;
+  // Memoize calculateScore function
+  const calculateScore = useCallback(() => {
+    let correctAnswers = 0;
     quiz.questions.forEach((question, index) => {
       if (answers[index] === question.answer) {
         correctAnswers++;
@@ -111,7 +112,21 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
     if (onComplete) {
       onComplete({ score: calculatedScore, answers, totalQuestions });
     }
-  };
+  }, [quiz?.questions, answers, totalQuestions, onComplete]);
+
+  const handleNext = useCallback(() => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      calculateScore();
+    }
+  }, [currentQuestionIndex, totalQuestions, calculateScore]);
+
+  const handlePrevious = useCallback(() => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  }, [currentQuestionIndex]);
 
   const currentFeedback = questionFeedback[currentQuestionIndex];
   const isQuestionChecked = checkedQuestions[currentQuestionIndex];
@@ -182,7 +197,9 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                   {score >= 80 ? t('quiz.interfacePage.excellent') : 
                    score >= 60 ? t('quiz.interfacePage.goodJob') : t('quiz.interfacePage.keepPracticing')}
                 </p>
-              </div>              <p className="text-gray-600">
+              </div>
+              
+              <p className="text-gray-600">
                 {t('quiz.interfacePage.scoreMessage', {
                   correct: Object.values(answers).filter((answer, index) => 
                     answer === quiz.questions[index]?.answer

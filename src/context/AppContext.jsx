@@ -16,7 +16,6 @@ const initialState = {
   accessToken: null,
   
   // Article explorer
-  articles: [],
   selectedArticle: null,
   searchTerm: '',
   searchResults: [],
@@ -30,13 +29,16 @@ const initialState = {
     score: 0,
     isCompleted: false
   },
+  quizHistory: [],
   
   // API configuration
   apiKeys: {
     gemini: '',
     googleSearch: '',
   },
-  googleSearchEngineId: '',  // UI state
+  googleSearchEngineId: '',
+  
+  // UI state
   sidebarOpen: false,
   activeTab: 'explorer', // Only 'explorer' now - quiz removed
   theme: 'light',
@@ -58,24 +60,20 @@ const ActionTypes = {
   LOGOUT: 'LOGOUT',
   
   // Articles
-  SET_ARTICLES: 'SET_ARTICLES',
   SET_SELECTED_ARTICLE: 'SET_SELECTED_ARTICLE',
   SET_SEARCH_TERM: 'SET_SEARCH_TERM',
   SET_SEARCH_RESULTS: 'SET_SEARCH_RESULTS',
   SET_SEARCHING: 'SET_SEARCHING',
   
   // Quiz
-  SET_CURRENT_QUIZ: 'SET_CURRENT_QUIZ',
-  UPDATE_QUIZ_PROGRESS: 'UPDATE_QUIZ_PROGRESS',
-  RESET_QUIZ: 'RESET_QUIZ',
+  ADD_QUIZ_HISTORY: 'ADD_QUIZ_HISTORY',
   
   // API
   SET_API_KEY: 'SET_API_KEY',
   SET_GOOGLE_SEARCH_ENGINE_ID: 'SET_GOOGLE_SEARCH_ENGINE_ID',
-    // UI
+  // UI
   TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR',
   SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
-  SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
   SET_SUCCESS: 'SET_SUCCESS',
   CLEAR_MESSAGES: 'CLEAR_MESSAGES',
@@ -107,15 +105,8 @@ function appReducer(state, action) {
         isAuthenticated: false,
         user: null,
         accessToken: null,
-        articles: [],
         selectedArticle: null,
         searchResults: []
-      };
-    
-    case ActionTypes.SET_ARTICLES:
-      return {
-        ...state,
-        articles: action.payload
       };
     
     case ActionTypes.SET_SELECTED_ARTICLE:
@@ -142,37 +133,11 @@ function appReducer(state, action) {
         isSearching: action.payload
       };
     
-    case ActionTypes.SET_CURRENT_QUIZ:
+    case ActionTypes.ADD_QUIZ_HISTORY:
+      // Add quiz to history array (you'll need to add this to initial state)
       return {
         ...state,
-        currentQuiz: action.payload,
-        quizProgress: {
-          currentQuestion: 0,
-          answers: [],
-          score: 0,
-          isCompleted: false
-        }
-      };
-    
-    case ActionTypes.UPDATE_QUIZ_PROGRESS:
-      return {
-        ...state,
-        quizProgress: {
-          ...state.quizProgress,
-          ...action.payload
-        }
-      };
-    
-    case ActionTypes.RESET_QUIZ:
-      return {
-        ...state,
-        currentQuiz: null,
-        quizProgress: {
-          currentQuestion: 0,
-          answers: [],
-          score: 0,
-          isCompleted: false
-        }
+        quizHistory: [...(state.quizHistory || []), action.payload]
       };
     
     case ActionTypes.SET_API_KEY:
@@ -211,12 +176,6 @@ function appReducer(state, action) {
         activeTab: action.payload
       };
     
-    case ActionTypes.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload
-      };
-    
     case ActionTypes.SET_ERROR:
       return {
         ...state,
@@ -230,7 +189,8 @@ function appReducer(state, action) {
         success: action.payload,
         loading: false
       };
-      case ActionTypes.CLEAR_MESSAGES:
+    
+    case ActionTypes.CLEAR_MESSAGES:
       return {
         ...state,
         error: null,

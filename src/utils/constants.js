@@ -1,43 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   IDENTITY_BASE_URL: 'https://identity.api.bg.cluster.vecto.digital/api',
-  INDEXING_BASE_URL: 'https://indexing.api.bg.cluster.vecto.digital/api',
-  GEMINI_API_ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/',
-  GOOGLE_CUSTOM_SEARCH_ENDPOINT: 'https://www.googleapis.com/customsearch/v1'
-};
-
-// Google Search Configuration
-export const GOOGLE_SEARCH_CONFIG = {
-  MAX_RESULTS_PER_SEARCH: 10,
-  DEFAULT_IMAGE_COUNT: 6,
-  DEFAULT_LINK_COUNT: 5,
-  DEFAULT_CITATION_COUNT: 5,
-  SEARCH_TIMEOUT: 10000, // 10 seconds
-  RELIABLE_DOMAINS: [
-    'wikipedia.org',
-    'britannica.com',
-    'edu',
-    'gov',
-    'org',
-    'nationalgeographic.com',
-    'smithsonianmag.com',
-    'bbc.com',
-    'cnn.com',
-    'reuters.com',
-    'ap.org'
-  ],
-  ACADEMIC_DOMAINS: [
-    'scholar.google.com',
-    'jstor.org',
-    'pubmed.ncbi.nlm.nih.gov',
-    'researchgate.net',
-    'academia.edu',
-    'arxiv.org',
-    'ncbi.nlm.nih.gov',
-    'springer.com',
-    'sciencedirect.com',
-    'wiley.com'
-  ]
+  INDEXING_BASE_URL: 'https://indexing.api.bg.cluster.vecto.digital/api'
 };
 
 // Difficulty Level Mappings (must be defined before getQuizJsonSchema)
@@ -201,3 +165,70 @@ export const GEMINI_MODELS = [
     description: 'Lightweight model'
   }
 ];
+
+// Default quiz instructions (fallback)
+export const DEFAULT_QUIZ_INSTRUCTIONS = QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy.instructions;
+
+// Quiz JSON Schema generator function
+export const getQuizJsonSchema = (targetLanguage = 'hy') => {
+  const difficultyValues = Object.values(DIFFICULTY_MAPPINGS[targetLanguage] || DIFFICULTY_MAPPINGS.hy);
+  
+  return {
+    type: "object",
+    properties: {
+      title: {
+        type: "string",
+        description: "Quiz title"
+      },
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            question: {
+              type: "string",
+              description: "The quiz question"
+            },
+            options: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              minItems: 2,
+              maxItems: 4,
+              description: "Array of answer options"
+            },
+            answer: {
+              type: "integer",
+              minimum: 0,
+              maximum: 3,
+              description: "Index of the correct answer (0-based)"
+            },
+            difficulty: {
+              type: "string",
+              enum: difficultyValues,
+              description: "Question difficulty level"
+            },
+            explanation: {
+              type: "string",
+              description: "Optional explanation for the answer"
+            },
+            articleIds: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "IDs of articles this question relates to"
+            }
+          },
+          required: ["question", "options", "answer", "difficulty"],
+          additionalProperties: false
+        },
+        minItems: 1,
+        description: "Array of quiz questions"
+      }
+    },
+    required: ["questions"],
+    additionalProperties: false
+  };
+};

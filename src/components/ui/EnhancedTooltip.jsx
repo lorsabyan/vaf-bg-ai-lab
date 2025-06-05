@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
@@ -28,18 +28,7 @@ function EnhancedTooltip({
     searchResults.data.citations?.length > 0
   );
 
-  // Debug logging
-  console.log('EnhancedTooltip render:', {
-    searchResults,
-    isLoadingSearch,
-    isGoogleSearchConfigured,
-    hasResults,
-    activeTab,
-    searchResultsData: searchResults?.data,
-    imagesLength: searchResults?.data?.images?.length,
-    webLinksLength: searchResults?.data?.webLinks?.length,
-    citationsLength: searchResults?.data?.citations?.length
-  });
+
 
   return (
     <div
@@ -121,6 +110,7 @@ function EnhancedTooltip({
                 {searchResults.data.images.map((image, index) => (
                   <div key={index} className="group cursor-pointer" onClick={() => window.open(image.contextLink, '_blank')}>
                     <div className="relative overflow-hidden rounded-lg border border-gray-200 hover:border-sky-300 transition-all duration-200 hover:shadow-md">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={image.thumbnailLink}
                         alt={image.title}

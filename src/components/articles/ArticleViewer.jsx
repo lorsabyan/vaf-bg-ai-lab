@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import articleService from '../../services/articleService';
 import quizService from '../../services/quizService';
 import googleSearchService from '../../services/googleSearchService';
+import { validateGeminiApiKey } from '../../utils/apiHelpers';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import EnhancedTooltip from '../ui/EnhancedTooltip';
@@ -11,7 +12,7 @@ import QuizModal from '../quiz/QuizModal';
 import QuizInterfacePage from '../quiz/QuizInterfacePage';
 import ArticleToolbar from './ArticleToolbar';
 
-function ArticleViewer() {
+const ArticleViewer = React.memo(function ArticleViewer() {
   const { t, i18n } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [isExplaining, setIsExplaining] = useState(false);
@@ -32,8 +33,18 @@ function ArticleViewer() {
   const articleRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const formattedContent = state.selectedArticle ? 
-    articleService.formatArticleContent(state.selectedArticle) : null;
+  // Memoize expensive article formatting operation
+  const formattedContent = useMemo(() => {
+    return state.selectedArticle ? 
+      articleService.formatArticleContent(state.selectedArticle) : null;
+  }, [state.selectedArticle]);
+
+  // Memoize content for AI operations to avoid recalculation
+  const contentForAI = useMemo(() => {
+    return isShowingTranslation ? 
+      (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
+      (formattedContent?.plainText || '');
+  }, [isShowingTranslation, translatedContent, formattedContent?.plainText]);
 
   useEffect(() => {
     setShowTooltip(false);
@@ -50,7 +61,8 @@ function ArticleViewer() {
     setKeyPoints('');
   }, [isShowingTranslation]);
 
-  const handleTextSelection = async () => {
+  // Memoize the text selection handler to prevent unnecessary re-renders
+  const handleTextSelection = useCallback(async () => {
     if (!isSelectMode) return;
     
     const selection = window.getSelection();
@@ -61,11 +73,7 @@ function ArticleViewer() {
       return;
     }
 
-    if (!state.apiKeys.gemini) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: t('articleViewer.errors.apiKeyRequired')
-      });
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       return;
     }
 
@@ -86,45 +94,28 @@ function ArticleViewer() {
     // Start both AI explanation and Google search concurrently
     const promises = [];
 
-    // AI Explanation
-    const contentToUse = isShowingTranslation ? 
-      (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
-      (formattedContent?.plainText || '');
-      
+    // AI Explanation      
     promises.push(
       quizService.explainTerm(
         selectedTerm,
-        contentToUse,
+        contentForAI,
         state.apiKeys.gemini,
         state.selectedLanguage
       )
     );
 
     // Google Search (if configured)
-    console.log('Checking Google Search configuration:', {
-      hasApiKey: !!state.apiKeys.googleSearch,
-      apiKeyValue: state.apiKeys.googleSearch ? `${state.apiKeys.googleSearch.substring(0, 10)}...` : 'null',
-      hasEngineId: !!state.googleSearchEngineId,
-      engineIdValue: state.googleSearchEngineId || 'null'
-    });
     
     if (state.apiKeys.googleSearch && state.googleSearchEngineId) {
-      console.log('Google Search API configured, initiating search for:', selectedTerm);
       setIsLoadingSearch(true);
       googleSearchService.initializeAPI(state.apiKeys.googleSearch, state.googleSearchEngineId);
       
       // Pass article context to improve search relevance
-      const articleContext = contentToUse ? contentToUse.substring(0, 2000) : ''; // First 2000 chars for context
-      console.log('Passing article context to search, length:', articleContext.length);
+      const articleContext = contentForAI ? contentForAI.substring(0, 2000) : ''; // First 2000 chars for context
       
       promises.push(
         googleSearchService.searchAll(selectedTerm, state.selectedLanguage, articleContext)
       );
-    } else {
-      console.log('Google Search API not configured:', {
-        apiKey: !!state.apiKeys.googleSearch,
-        engineId: !!state.googleSearchEngineId
-      });
     }
 
     try {
@@ -145,10 +136,7 @@ function ArticleViewer() {
       if (results.length > 1) {
         const searchResult = results[1];
         if (searchResult.status === 'fulfilled' && searchResult.value.success) {
-          console.log('📊 Setting search results:', searchResult.value);
           setSearchResults(searchResult.value);
-        } else {
-          console.log('❌ Search failed:', searchResult);
         }
       }
       
@@ -160,9 +148,10 @@ function ArticleViewer() {
     } finally {
       setIsExplaining(false);
     }
-  };
+  }, [isSelectMode, state, dispatch, ActionTypes, t, contentForAI]);
 
-  const handleGetKeyPoints = async () => {
+  // Memoize the key points generation handler
+  const handleGetKeyPoints = useCallback(async () => {
     if (!formattedContent?.plainText) {
       dispatch({
         type: ActionTypes.SET_ERROR,
@@ -171,11 +160,7 @@ function ArticleViewer() {
       return;
     }
 
-    if (!state.apiKeys.gemini) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: t('articleViewer.errors.apiKeyRequired')
-      });
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       return;
     }
 
@@ -236,8 +221,10 @@ Please provide the key points in ${targetLanguage}, formatted as a bullet list w
     } finally {
       setIsLoadingKeyPoints(false);
     }
-  };
-  const handleTranslate = async () => {
+  }, [formattedContent?.plainText, dispatch, ActionTypes, t, state, isShowingTranslation, translatedContent]);
+  
+  // Memoize the translation handler
+  const handleTranslate = useCallback(async () => {
     if (!formattedContent?.html) {
       dispatch({
         type: ActionTypes.SET_ERROR,
@@ -246,11 +233,7 @@ Please provide the key points in ${targetLanguage}, formatted as a bullet list w
       return;
     }
 
-    if (!state.apiKeys.gemini) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: t('articleViewer.errors.apiKeyRequired')
-      });
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       return;
     }
 
@@ -331,24 +314,25 @@ Please provide the translation with the exact same HTML structure, translating o
     } finally {
       setIsLoadingTranslation(false);
     }
-  };
+  }, [formattedContent?.html, dispatch, ActionTypes, t, state, isShowingTranslation, translatedContent]);
   
-  const handleSelectAndExplain = (enabled) => {
+  // Memoize simple event handlers
+  const handleSelectAndExplain = useCallback((enabled) => {
     setIsSelectMode(enabled);
     if (!enabled) {
       setShowTooltip(false);
     }
-  };
+  }, []);
 
-  const handleClickOutside = (event) => {
+  const handleClickOutside = useCallback((event) => {
     if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
       setShowTooltip(false);
     }
-  };
+  }, []);
 
-  const handleBackToArticle = () => {
+  const handleBackToArticle = useCallback(() => {
     dispatch({ type: ActionTypes.HIDE_QUIZ_INTERFACE });
-  };
+  }, [dispatch, ActionTypes]);
 
   const handleQuizCompleted = (results) => {
     // Quiz results are handled by QuizInterface component
@@ -363,7 +347,7 @@ Please provide the translation with the exact same HTML structure, translating o
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showTooltip]);
+  }, [showTooltip, handleClickOutside]);
   if (!state.selectedArticle) {
     return (
       <div className="h-full flex items-center justify-center bg-white">
@@ -464,6 +448,6 @@ Please provide the translation with the exact same HTML structure, translating o
       <QuizModal />
     </div>
   );
-}
+});
 
 export default ArticleViewer;

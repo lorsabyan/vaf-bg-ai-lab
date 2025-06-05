@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import quizService from '../../services/quizService';
 import articleService from '../../services/articleService';
 import { GEMINI_MODELS, QUIZ_INSTRUCTIONS_BY_LANGUAGE } from '../../utils/constants';
+import { validateGeminiApiKey } from '../../utils/apiHelpers';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import Modal from '../ui/Modal';
@@ -15,29 +16,37 @@ function QuizModal() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   
-  // Get language-specific default instructions
-  const getDefaultInstructions = (language) => {
-    return QUIZ_INSTRUCTIONS_BY_LANGUAGE[language]?.instructions || 
-           QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy.instructions;
-  };
+  // Memoize language-specific default instructions
+  const getDefaultInstructions = useMemo(() => {
+    return (language) => {
+      return QUIZ_INSTRUCTIONS_BY_LANGUAGE[language]?.instructions || 
+             QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy.instructions;
+    };
+  }, []);
+
+  // Memoize initial instructions based on current language
+  const initialInstructions = useMemo(() => {
+    return getDefaultInstructions(state.selectedLanguage);
+  }, [getDefaultInstructions, state.selectedLanguage]);
 
   // Form state
-  const [instructions, setInstructions] = useState(getDefaultInstructions(state.selectedLanguage));
+  const [instructions, setInstructions] = useState(initialInstructions);
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash-preview-05-20');
   const [temperature, setTemperature] = useState(0.7);
 
   // Update instructions when language changes
   useEffect(() => {
     setInstructions(getDefaultInstructions(state.selectedLanguage));
-  }, [state.selectedLanguage]);
+  }, [getDefaultInstructions, state.selectedLanguage]);
 
-  const handleClose = () => {
+  // Memoize event handlers
+  const handleClose = useCallback(() => {
     dispatch({ type: ActionTypes.HIDE_QUIZ_MODAL });
-  };
+  }, [dispatch, ActionTypes]);
 
   const handleGenerateQuiz = async () => {
     // Check if API key is available
-    if (!state.apiKeys.gemini) {
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       setShowApiKeyModal(true);
       return;
     }
@@ -46,7 +55,7 @@ function QuizModal() {
     if (!state.selectedArticle) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: t('quiz.errors.apiKeyRequired')
+        payload: t('quiz.errors.noArticleSelected')
       });
       return;
     }

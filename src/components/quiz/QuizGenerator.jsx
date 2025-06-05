@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import quizService from '../../services/quizService';
 import articleService from '../../services/articleService';
 import { GEMINI_MODELS, DEFAULT_QUIZ_INSTRUCTIONS, QUIZ_TEMPLATES } from '../../utils/constants';
+import { validateGeminiApiKey } from '../../utils/apiHelpers';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import QuizInterface from './QuizInterface';
@@ -22,7 +23,19 @@ function QuizGenerator({ onQuizGenerate }) {
   const [temperature, setTemperature] = useState(0.7);
   const [selectedTemplate, setSelectedTemplate] = useState('ARMENIAN_COMPREHENSIVE');
 
-  const handleTemplateChange = (templateKey) => {
+  // Memoize the current quiz template
+  const currentTemplate = useMemo(() => {
+    return QUIZ_TEMPLATES[selectedTemplate];
+  }, [selectedTemplate]);
+
+  // Memoize the formatted article content to avoid recalculation
+  const formattedContent = useMemo(() => {
+    return state.selectedArticle ? 
+      articleService.formatArticleContent(state.selectedArticle) : null;
+  }, [state.selectedArticle]);
+
+  // Memoize the template change handler
+  const handleTemplateChange = useCallback((templateKey) => {
     setSelectedTemplate(templateKey);
     const template = QUIZ_TEMPLATES[templateKey];
     if (template) {
@@ -30,11 +43,12 @@ function QuizGenerator({ onQuizGenerate }) {
       setSelectedModel(template.model);
       setTemperature(template.temperature);
     }
-  };
+  }, []);
 
-  const handleGenerateQuiz = async () => {
+  // Memoize the quiz generation handler
+  const handleGenerateQuiz = useCallback(async () => {
     // Check if API key is available
-    if (!state.apiKeys.gemini) {
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       setShowApiKeyModal(true);
       return;
     }
@@ -43,7 +57,7 @@ function QuizGenerator({ onQuizGenerate }) {
     if (!state.selectedArticle) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: t('quiz.errors.apiKeyRequired')
+        payload: t('quiz.errors.noArticleSelected')
       });
       return;
     }
@@ -51,8 +65,7 @@ function QuizGenerator({ onQuizGenerate }) {
     setIsGenerating(true);
       try {
       // Initialize the quiz service with API key
-      quizService.initializeAPI(state.apiKeys.gemini);      // Get the formatted article content
-      const formattedContent = articleService.formatArticleContent(state.selectedArticle);
+      quizService.initializeAPI(state.apiKeys.gemini);      
       
       if (!formattedContent || !formattedContent.html) {
         dispatch({
@@ -98,7 +111,7 @@ function QuizGenerator({ onQuizGenerate }) {
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [state, dispatch, ActionTypes, t, formattedContent, instructions, selectedModel, temperature, onQuizGenerate]);
 
   const handleQuizComplete = (results) => {
     // Save quiz results to history
@@ -135,7 +148,7 @@ function QuizGenerator({ onQuizGenerate }) {
   const handleApiKeySave = () => {
     setShowApiKeyModal(false);
     // Try generating quiz again if API key was just saved
-    if (state.apiKeys.gemini) {
+    if (validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       handleGenerateQuiz();
     }
   };
