@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: "pages"
@@ -253,14 +255,11 @@ jobs:
           echo "📤 Deploying to GitHub Pages..."
           
       - name: Deploy to GitHub Pages
-        run: |
-          cd gh-pages-deploy
-          git init
-          git add -A
-          git commit -m "Deploy v1 and v2 to GitHub Pages - $(date)"
-          git branch -M gh-pages
-          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push -f origin gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-deploy
+          force_orphan: true
           
       - name: Display deployment info
         run: |
