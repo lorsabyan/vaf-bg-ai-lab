@@ -2,7 +2,7 @@
 
 > **🎉 Recently migrated from Create React App to Next.js for improved performance and static site generation!**
 
-🚀 **[Live Demo](https://lorsabyan.github.io/vaf-bg-ai-lab)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
+🚀 **[Live Demo V1](https://lorsabyan.github.io/vaf-bg-ai-lab)** | **[Live Demo V2](https://lorsabyan.github.io/vaf-bg-ai-lab/v2/)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
 
 An AI-driven Next.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
 
@@ -59,7 +59,10 @@ An AI-driven Next.js application that combines article exploration and quiz gene
 - **Search Integration**: Google Custom Search API for images, links, and citations
 - **State Management**: React Context API with useReducer
 - **Build Tool**: Next.js with static site generation
-- **Deployment**: GitHub Pages ready with optimized static export
+- **Deployment**: 
+  - GitHub Pages with multi-version support
+  - Automated CI/CD with GitHub Actions
+  - Optimized static export for production
 
 ## Getting Started
 
@@ -96,11 +99,34 @@ An AI-driven Next.js application that combines article exploration and quiz gene
 
 ### Deployment
 
-**Deploy to GitHub Pages**:
+#### Single Version Deployment
+For deploying a single version to GitHub Pages:
 
 ```bash
 npm run deploy
 ```
+
+#### Multi-Version Deployment
+The project supports deploying multiple versions simultaneously:
+
+- **V1 (Stable)**: `https://lorsabyan.github.io/vaf-bg-ai-lab/` (root path)
+- **V2 (Latest)**: `https://lorsabyan.github.io/vaf-bg-ai-lab/v2/`
+- **Version Selector**: `https://lorsabyan.github.io/vaf-bg-ai-lab/version-info.html`
+
+**Automatic Deployment** (Recommended):
+- Push to `release/v1` or `release/v2` branches
+- GitHub Actions automatically deploys both versions
+
+**Manual Multi-Version Deployment**:
+```bash
+# Deploy both V1 and V2 from their respective branches
+./deploy.sh
+
+# Alternative using npm script
+npm run deploy:versions
+```
+
+For detailed deployment documentation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Usage Guide
 
@@ -169,9 +195,21 @@ For production deployment, you can set:
 - `REACT_APP_GOOGLE_SEARCH_API_KEY`: Google Custom Search API key
 - `REACT_APP_GOOGLE_SEARCH_ENGINE_ID`: Google Custom Search Engine ID
 
-## Development
+## Project Structure & Deployment
 
-### Project Structure
+### Development Branches
+- **`main`**: Primary development branch
+- **`release/v1`**: Stable production version (deployed to root path)
+- **`release/v2`**: Latest development version (deployed to `/v2` path)
+
+### GitHub Pages Setup
+- **Automatic Deployment**: GitHub Actions workflow triggers on pushes to release branches
+- **Multi-Version Support**: Both versions deployed simultaneously to different paths
+- **Version Selector**: Beautiful landing page to choose between versions
+
+For detailed deployment configuration, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Directory Structure
 
 ```text
 src/
@@ -318,6 +356,14 @@ For support and questions:
 - [ ] Offline mode support
 - [ ] Multiple language support for tooltips
 - [ ] Integration with more AI models
+- [ ] Cross-version feature synchronization
+- [ ] Version-specific settings and preferences
+
+### 🔄 Multi-Version Development
+- [ ] Branch-specific feature toggles
+- [ ] Version comparison tools
+- [ ] Automated version migration utilities
+- [ ] Independent version analytics
 
 ### 🔍 Search & Discovery Enhancements
 - [ ] Advanced article filtering and categorization
