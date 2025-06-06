@@ -48,6 +48,31 @@ const nextConfig = {
 module.exports = nextConfig`;
 }
 
+function createEslintConfigForCRA() {
+  return `{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ]
+}`;
+}
+
+function isNextJsProject(projectPath) {
+  const nextConfigPath = path.join(projectPath, 'next.config.js');
+  const packageJsonPath = path.join(projectPath, 'package.json');
+  
+  if (fs.existsSync(nextConfigPath)) {
+    return true;
+  }
+  
+  if (fs.existsSync(packageJsonPath)) {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    return packageJson.dependencies && packageJson.dependencies.next;
+  }
+  
+  return false;
+}
+
 async function deployVersion(version, branch) {
   console.log(`\n🚀 Deploying ${version} from ${branch}...`);
   
@@ -57,15 +82,46 @@ async function deployVersion(version, branch) {
   // Clone the specific branch
   runCommand(`git clone -b ${branch} ${REPO_URL} ${tempDir}`);
   
-  // Create version-specific next.config.js
-  const nextConfigPath = path.join(tempDir, 'next.config.js');
-  fs.writeFileSync(nextConfigPath, createNextConfigForVersion(version));
+  // Check if this is Next.js or CRA
+  const isNextJs = isNextJsProject(tempDir);
+  
+  if (isNextJs) {
+    console.log(`📦 Detected Next.js project for ${version}`);
+    // Create version-specific next.config.js
+    const nextConfigPath = path.join(tempDir, 'next.config.js');
+    fs.writeFileSync(nextConfigPath, createNextConfigForVersion(version));
+  } else {
+    console.log(`📦 Detected Create React App project for ${version}`);
+    
+    // Set homepage in package.json for CRA
+    const homepage = version === 'v1' 
+      ? 'https://lorsabyan.github.io/vaf-bg-ai-lab'
+      : 'https://lorsabyan.github.io/vaf-bg-ai-lab/v2';
+    
+    runCommand(`npm pkg set homepage="${homepage}"`, tempDir);
+    
+    // Fix ESLint config for CRA
+    const eslintConfigPath = path.join(tempDir, '.eslintrc.json');
+    if (fs.existsSync(eslintConfigPath)) {
+      fs.writeFileSync(eslintConfigPath, createEslintConfigForCRA());
+    }
+  }
   
   // Install dependencies and build
   runCommand('npm install', tempDir);
   runCommand('npm run build', tempDir);
   
-  return path.join(tempDir, 'out');
+  // Return the correct build output directory
+  const nextOutDir = path.join(tempDir, 'out');
+  const craOutDir = path.join(tempDir, 'build');
+  
+  if (fs.existsSync(nextOutDir)) {
+    return nextOutDir;
+  } else if (fs.existsSync(craOutDir)) {
+    return craOutDir;
+  } else {
+    throw new Error(`No build output found for ${version}`);
+  }
 }
 
 async function main() {

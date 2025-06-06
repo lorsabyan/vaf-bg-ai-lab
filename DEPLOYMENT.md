@@ -34,26 +34,55 @@ npm run deploy:versions
 
 ## How It Works
 
-1. **Builds V1**: Clones `release/v1` branch and builds with root path configuration
-2. **Builds V2**: Clones `release/v2` branch and builds with `/v2` path configuration
-3. **Combines Output**: Merges both builds into a single deployment directory
-4. **Deploys**: Pushes the combined output to the `gh-pages` branch
+1. **Detects Project Type**: Automatically detects whether each branch uses Next.js or Create React App
+2. **Builds V1**: Clones `release/v1` branch and builds with appropriate configuration:
+   - **Next.js**: Uses root path configuration with `basePath: '/vaf-bg-ai-lab'`
+   - **Create React App**: Sets `homepage` in package.json and fixes ESLint config
+3. **Builds V2**: Clones `release/v2` branch and builds with appropriate configuration:
+   - **Next.js**: Uses `/v2` path configuration with `basePath: '/vaf-bg-ai-lab/v2'`
+   - **Create React App**: Sets `homepage` with `/v2` path and fixes ESLint config
+4. **Combines Output**: Merges both builds into a single deployment directory
+   - Next.js builds output to `out/` directory
+   - Create React App builds output to `build/` directory
+5. **Deploys**: Pushes the combined output to the `gh-pages` branch
 
 ## Configuration Details
 
-Each version uses a different `next.config.js` configuration:
+The deployment system automatically detects the project type and applies the appropriate configuration:
 
-### V1 Configuration (Root Path)
+### Next.js Projects
+
+#### V1 Configuration (Root Path)
 ```javascript
 basePath: '/vaf-bg-ai-lab'
 assetPrefix: '/vaf-bg-ai-lab/'
+output: 'export'
 ```
 
-### V2 Configuration (/v2 Path)
+#### V2 Configuration (/v2 Path)
 ```javascript
 basePath: '/vaf-bg-ai-lab/v2'
 assetPrefix: '/vaf-bg-ai-lab/v2/'
+output: 'export'
 ```
+
+### Create React App Projects
+
+#### V1 Configuration (Root Path)
+```json
+{
+  "homepage": "https://lorsabyan.github.io/vaf-bg-ai-lab"
+}
+```
+
+#### V2 Configuration (/v2 Path)
+```json
+{
+  "homepage": "https://lorsabyan.github.io/vaf-bg-ai-lab/v2"
+}
+```
+
+Both project types also receive fixed ESLint configurations to prevent build failures.
 
 ## GitHub Pages Settings
 
@@ -70,9 +99,13 @@ Make sure your repository's GitHub Pages settings are configured to:
 
 ## Troubleshooting
 
-1. **404 Errors**: Ensure the `basePath` and `assetPrefix` are correctly configured
-2. **Build Failures**: Check that both `release/v1` and `release/v2` branches have valid Next.js configurations
+1. **404 Errors**: Ensure the paths are correctly configured for each project type
+2. **Build Failures**: 
+   - **Next.js**: Check that `basePath` and `assetPrefix` are correctly configured
+   - **Create React App**: Check that `homepage` is set in package.json
+   - **ESLint Issues**: The script automatically fixes common ESLint config conflicts
 3. **Deployment Issues**: Verify that the repository has proper permissions for GitHub Actions
+4. **Mixed Project Types**: The deployment system handles both Next.js and CRA projects automatically
 
 ## Notes
 

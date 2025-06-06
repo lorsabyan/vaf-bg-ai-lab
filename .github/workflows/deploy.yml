@@ -45,8 +45,11 @@ jobs:
           git clone -b release/v1 https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git temp-v1
           cd temp-v1
           
-          # Create v1 specific next.config.js
-          cat > next.config.js << 'EOF'
+          # Check if this is a Next.js project or Create React App
+          if [ -f "next.config.js" ] || grep -q "next" package.json; then
+            echo "📦 Detected Next.js project"
+            # Create v1 specific next.config.js
+            cat > next.config.js << 'EOF'
           /** @type {import('next').NextConfig} */
           const nextConfig = {
             reactStrictMode: true,
@@ -67,9 +70,28 @@ jobs:
           }
           module.exports = nextConfig
           EOF
-          
-          npm install
-          npm run build
+            npm install
+            npm run build
+          else
+            echo "📦 Detected Create React App project"
+            # Set homepage in package.json for CRA
+            npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab"
+            
+            # Fix ESLint config for CRA
+            if [ -f ".eslintrc.json" ]; then
+              cat > .eslintrc.json << 'EOF'
+          {
+            "extends": [
+              "react-app",
+              "react-app/jest"
+            ]
+          }
+          EOF
+            fi
+            
+            npm install
+            npm run build
+          fi
           cd ..
           
           # Clone v2 branch and build
@@ -77,8 +99,11 @@ jobs:
           git clone -b release/v2 https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git temp-v2
           cd temp-v2
           
-          # Create v2 specific next.config.js
-          cat > next.config.js << 'EOF'
+          # Check if this is a Next.js project or Create React App
+          if [ -f "next.config.js" ] || grep -q "next" package.json; then
+            echo "📦 Detected Next.js project"
+            # Create v2 specific next.config.js
+            cat > next.config.js << 'EOF'
           /** @type {import('next').NextConfig} */
           const nextConfig = {
             reactStrictMode: true,
@@ -99,9 +124,28 @@ jobs:
           }
           module.exports = nextConfig
           EOF
-          
-          npm install
-          npm run build
+            npm install
+            npm run build
+          else
+            echo "📦 Detected Create React App project"
+            # Set homepage for CRA with v2 path
+            npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab/v2"
+            
+            # Fix ESLint config for CRA
+            if [ -f ".eslintrc.json" ]; then
+              cat > .eslintrc.json << 'EOF'
+          {
+            "extends": [
+              "react-app",
+              "react-app/jest"
+            ]
+          }
+          EOF
+            fi
+            
+            npm install
+            npm run build
+          fi
           cd ..
           
           # Prepare deployment directory
@@ -109,11 +153,29 @@ jobs:
           mkdir -p gh-pages-deploy
           
           # Copy v1 to root
-          cp -r temp-v1/out/* gh-pages-deploy/
+          if [ -d "temp-v1/out" ]; then
+            echo "📁 Copying Next.js V1 build to root..."
+            cp -r temp-v1/out/* gh-pages-deploy/
+          elif [ -d "temp-v1/build" ]; then
+            echo "📁 Copying CRA V1 build to root..."
+            cp -r temp-v1/build/* gh-pages-deploy/
+          else
+            echo "❌ No build output found for V1"
+            exit 1
+          fi
           
           # Copy v2 to /v2 subdirectory
           mkdir -p gh-pages-deploy/v2
-          cp -r temp-v2/out/* gh-pages-deploy/v2/
+          if [ -d "temp-v2/out" ]; then
+            echo "📁 Copying Next.js V2 build to /v2..."
+            cp -r temp-v2/out/* gh-pages-deploy/v2/
+          elif [ -d "temp-v2/build" ]; then
+            echo "📁 Copying CRA V2 build to /v2..."
+            cp -r temp-v2/build/* gh-pages-deploy/v2/
+          else
+            echo "❌ No build output found for V2"
+            exit 1
+          fi
           
           # Create version info page
           cat > gh-pages-deploy/version-info.html << 'EOF'

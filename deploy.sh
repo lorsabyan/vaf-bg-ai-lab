@@ -16,8 +16,11 @@ echo "🚀 Building V1 from $V1_BRANCH..."
 git clone -b $V1_BRANCH $REPO_URL temp-v1
 cd temp-v1
 
-# Create v1 specific next.config.js
-cat > next.config.js << 'EOF'
+# Check if this is a Next.js project or Create React App
+if [ -f "next.config.js" ] || grep -q "next" package.json; then
+  echo "📦 Detected Next.js project for V1"
+  # Create v1 specific next.config.js
+  cat > next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -38,6 +41,23 @@ const nextConfig = {
 }
 module.exports = nextConfig
 EOF
+else
+  echo "📦 Detected Create React App project for V1"
+  # Set homepage in package.json for CRA
+  npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab"
+  
+  # Fix ESLint config for CRA
+  if [ -f ".eslintrc.json" ]; then
+    cat > .eslintrc.json << 'EOF'
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ]
+}
+EOF
+  fi
+fi
 
 npm install
 npm run build
@@ -47,8 +67,11 @@ echo "🚀 Building V2 from $V2_BRANCH..."
 git clone -b $V2_BRANCH $REPO_URL temp-v2
 cd temp-v2
 
-# Create v2 specific next.config.js
-cat > next.config.js << 'EOF'
+# Check if this is a Next.js project or Create React App
+if [ -f "next.config.js" ] || grep -q "next" package.json; then
+  echo "📦 Detected Next.js project for V2"
+  # Create v2 specific next.config.js
+  cat > next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -69,6 +92,23 @@ const nextConfig = {
 }
 module.exports = nextConfig
 EOF
+else
+  echo "📦 Detected Create React App project for V2"
+  # Set homepage for CRA with v2 path
+  npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab/v2"
+  
+  # Fix ESLint config for CRA
+  if [ -f ".eslintrc.json" ]; then
+    cat > .eslintrc.json << 'EOF'
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ]
+}
+EOF
+  fi
+fi
 
 npm install
 npm run build
@@ -79,12 +119,30 @@ mkdir -p gh-pages-deploy
 
 # Copy v1 to root
 echo "📁 Copying V1 to root..."
-cp -r temp-v1/out/* gh-pages-deploy/
+if [ -d "temp-v1/out" ]; then
+  echo "📁 Copying Next.js V1 build..."
+  cp -r temp-v1/out/* gh-pages-deploy/
+elif [ -d "temp-v1/build" ]; then
+  echo "📁 Copying CRA V1 build..."
+  cp -r temp-v1/build/* gh-pages-deploy/
+else
+  echo "❌ No build output found for V1"
+  exit 1
+fi
 
 # Copy v2 to /v2 subdirectory
 echo "📁 Copying V2 to /v2..."
 mkdir -p gh-pages-deploy/v2
-cp -r temp-v2/out/* gh-pages-deploy/v2/
+if [ -d "temp-v2/out" ]; then
+  echo "📁 Copying Next.js V2 build..."
+  cp -r temp-v2/out/* gh-pages-deploy/v2/
+elif [ -d "temp-v2/build" ]; then
+  echo "📁 Copying CRA V2 build..."
+  cp -r temp-v2/build/* gh-pages-deploy/v2/
+else
+  echo "❌ No build output found for V2"
+  exit 1
+fi
 
 # Create version info page
 echo "📄 Creating version info page..."
