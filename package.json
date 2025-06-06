@@ -10,7 +10,9 @@
     "start": "next start",
     "lint": "next lint",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
+    "deploy": "gh-pages -d out",
+    "deploy:versions": "./deploy.sh",
+    "deploy:versions:node": "node deploy-github-pages.js"
   },
   "repository": {
     "type": "git",
