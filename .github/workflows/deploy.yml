@@ -18,6 +18,9 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -255,13 +258,23 @@ jobs:
           
           # Deploy to gh-pages branch
           echo "📤 Deploying to GitHub Pages..."
-          cd gh-pages-deploy
-          git init
-          git add .
-          git commit -m "Deploy v1 and v2 to GitHub Pages - $(date)"
-          git push -f https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git HEAD:gh-pages
           
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages-deploy
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: Display deployment info
+        run: |
           echo "✅ Deployment complete!"
           echo "🌐 Your site will be available at:"
           echo "   V1 (root): https://lorsabyan.github.io/vaf-bg-ai-lab/"
           echo "   V2: https://lorsabyan.github.io/vaf-bg-ai-lab/v2/"
+          echo "   Version Selector: https://lorsabyan.github.io/vaf-bg-ai-lab/version-info.html"
