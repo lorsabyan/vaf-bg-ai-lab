@@ -7,9 +7,7 @@ on:
     - cron: '0 0 * * *'
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
@@ -17,9 +15,6 @@ concurrency:
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -255,20 +250,18 @@ jobs:
           </html>
           EOF
           
-          echo "📤 Preparing for GitHub Pages deployment..."
-          
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: gh-pages-deploy
+          echo "📤 Deploying to GitHub Pages..."
           
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        
+        run: |
+          cd gh-pages-deploy
+          git init
+          git add -A
+          git commit -m "Deploy v1 and v2 to GitHub Pages - $(date)"
+          git branch -M gh-pages
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push -f origin gh-pages
+          
       - name: Display deployment info
         run: |
           echo "✅ Deployment complete!"
