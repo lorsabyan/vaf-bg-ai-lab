@@ -102,8 +102,16 @@ async function deployVersion(version, branch) {
     
     // Fix ESLint config for CRA
     const eslintConfigPath = path.join(tempDir, '.eslintrc.json');
-    if (fs.existsSync(eslintConfigPath)) {
-      fs.writeFileSync(eslintConfigPath, createEslintConfigForCRA());
+    fs.writeFileSync(eslintConfigPath, createEslintConfigForCRA());
+    
+    // Remove any Next.js specific files that might cause conflicts
+    const nextConfigPath = path.join(tempDir, 'next.config.js');
+    const nextEnvPath = path.join(tempDir, 'next-env.d.ts');
+    if (fs.existsSync(nextConfigPath)) {
+      fs.unlinkSync(nextConfigPath);
+    }
+    if (fs.existsSync(nextEnvPath)) {
+      fs.unlinkSync(nextEnvPath);
     }
   }
   

@@ -46,9 +46,8 @@ else
   # Set homepage in package.json for CRA
   npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab"
   
-  # Fix ESLint config for CRA
-  if [ -f ".eslintrc.json" ]; then
-    cat > .eslintrc.json << 'EOF'
+  # Fix ESLint config for CRA - completely replace it
+  cat > .eslintrc.json << 'EOF'
 {
   "extends": [
     "react-app",
@@ -56,7 +55,10 @@ else
   ]
 }
 EOF
-  fi
+  
+  # Remove any Next.js specific files that might cause conflicts
+  rm -f next.config.js
+  rm -f next-env.d.ts
 fi
 
 npm install
@@ -97,9 +99,8 @@ else
   # Set homepage for CRA with v2 path
   npm pkg set homepage="https://lorsabyan.github.io/vaf-bg-ai-lab/v2"
   
-  # Fix ESLint config for CRA
-  if [ -f ".eslintrc.json" ]; then
-    cat > .eslintrc.json << 'EOF'
+  # Fix ESLint config for CRA - completely replace it
+  cat > .eslintrc.json << 'EOF'
 {
   "extends": [
     "react-app",
@@ -107,7 +108,10 @@ else
   ]
 }
 EOF
-  fi
+  
+  # Remove any Next.js specific files that might cause conflicts
+  rm -f next.config.js
+  rm -f next-env.d.ts
 fi
 
 npm install
