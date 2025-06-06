@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import ApiKeyModal from './ApiKeyModal';
+import LanguageSelector from './LanguageSelector';
 
 function Header() {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
@@ -42,20 +45,23 @@ function Header() {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold">Brainograph AI Lab</h1>
-                  <p className="text-xs text-sky-100 hidden sm:block">VAF Educational Platform</p>
+                  <h1 className="text-lg sm:text-xl font-bold">{t('header.title')}</h1>
+                  <p className="text-xs text-sky-100 hidden sm:block">{t('header.subtitle')}</p>
                 </div>
-              </div>            </div>
+              </div>
+            </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
+              <LanguageSelector />
+              
               <button
                 onClick={() => setShowApiKeyModal(true)}
                 className="p-2 bg-sky-600 hover:bg-sky-500 rounded-md transition-colors"
-                title="Gemini API բանալի"
+                title={t('header.apiKeyTooltip')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1721.75 8.25z" />
                 </svg>
               </button>
               
@@ -63,9 +69,10 @@ function Header() {
                 onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-md text-sm transition-colors shadow-sm"
               >
-                Ելք
+                {t('auth.logout')}
               </button>
-            </div>          </div>
+            </div>
+          </div>
         </div>
       </header>
 

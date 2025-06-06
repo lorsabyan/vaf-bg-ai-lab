@@ -1,6 +1,6 @@
 import React from 'react';
 
-function LoadingSpinner({ size = 'md', text = 'Բեռնվում է...' }) {
+function LoadingSpinner({ size = 'md', text = 'Բեռնվում է...', description = null }) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',

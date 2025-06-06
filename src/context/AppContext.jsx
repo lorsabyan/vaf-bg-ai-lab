@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
+// Helper function to safely access localStorage
+const getFromLocalStorage = (key, defaultValue = '') => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return localStorage.getItem(key) || defaultValue;
+  }
+  return defaultValue;
+};
+
 // Initial state
 const initialState = {
   // Authentication
@@ -8,7 +16,6 @@ const initialState = {
   accessToken: null,
   
   // Article explorer
-  articles: [],
   selectedArticle: null,
   searchTerm: '',
   searchResults: [],
@@ -22,17 +29,23 @@ const initialState = {
     score: 0,
     isCompleted: false
   },
+  quizHistory: [],
   
   // API configuration
   apiKeys: {
-    gemini: localStorage.getItem('geminiApiKey') || '',
-  },  // UI state
+    gemini: '',
+    googleSearch: '',
+  },
+  googleSearchEngineId: '',
+  
+  // UI state
   sidebarOpen: false,
   activeTab: 'explorer', // Only 'explorer' now - quiz removed
   theme: 'light',
   loading: false,
   error: null,
   success: null,
+  selectedLanguage: 'en', // Default to English
   
   // Quiz state for article viewer
   showQuizModal: false,
@@ -47,26 +60,24 @@ const ActionTypes = {
   LOGOUT: 'LOGOUT',
   
   // Articles
-  SET_ARTICLES: 'SET_ARTICLES',
   SET_SELECTED_ARTICLE: 'SET_SELECTED_ARTICLE',
   SET_SEARCH_TERM: 'SET_SEARCH_TERM',
   SET_SEARCH_RESULTS: 'SET_SEARCH_RESULTS',
   SET_SEARCHING: 'SET_SEARCHING',
   
   // Quiz
-  SET_CURRENT_QUIZ: 'SET_CURRENT_QUIZ',
-  UPDATE_QUIZ_PROGRESS: 'UPDATE_QUIZ_PROGRESS',
-  RESET_QUIZ: 'RESET_QUIZ',
+  ADD_QUIZ_HISTORY: 'ADD_QUIZ_HISTORY',
   
   // API
   SET_API_KEY: 'SET_API_KEY',
-    // UI
+  SET_GOOGLE_SEARCH_ENGINE_ID: 'SET_GOOGLE_SEARCH_ENGINE_ID',
+  // UI
   TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR',
   SET_ACTIVE_TAB: 'SET_ACTIVE_TAB',
-  SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
   SET_SUCCESS: 'SET_SUCCESS',
   CLEAR_MESSAGES: 'CLEAR_MESSAGES',
+  SET_SELECTED_LANGUAGE: 'SET_SELECTED_LANGUAGE',
   
   // Quiz modal management
   SHOW_QUIZ_MODAL: 'SHOW_QUIZ_MODAL',
@@ -94,15 +105,8 @@ function appReducer(state, action) {
         isAuthenticated: false,
         user: null,
         accessToken: null,
-        articles: [],
         selectedArticle: null,
         searchResults: []
-      };
-    
-    case ActionTypes.SET_ARTICLES:
-      return {
-        ...state,
-        articles: action.payload
       };
     
     case ActionTypes.SET_SELECTED_ARTICLE:
@@ -129,37 +133,11 @@ function appReducer(state, action) {
         isSearching: action.payload
       };
     
-    case ActionTypes.SET_CURRENT_QUIZ:
+    case ActionTypes.ADD_QUIZ_HISTORY:
+      // Add quiz to history array (you'll need to add this to initial state)
       return {
         ...state,
-        currentQuiz: action.payload,
-        quizProgress: {
-          currentQuestion: 0,
-          answers: [],
-          score: 0,
-          isCompleted: false
-        }
-      };
-    
-    case ActionTypes.UPDATE_QUIZ_PROGRESS:
-      return {
-        ...state,
-        quizProgress: {
-          ...state.quizProgress,
-          ...action.payload
-        }
-      };
-    
-    case ActionTypes.RESET_QUIZ:
-      return {
-        ...state,
-        currentQuiz: null,
-        quizProgress: {
-          currentQuestion: 0,
-          answers: [],
-          score: 0,
-          isCompleted: false
-        }
+        quizHistory: [...(state.quizHistory || []), action.payload]
       };
     
     case ActionTypes.SET_API_KEY:
@@ -167,10 +145,23 @@ function appReducer(state, action) {
         ...state.apiKeys,
         [action.payload.type]: action.payload.key
       };
-      localStorage.setItem(`${action.payload.type}ApiKey`, action.payload.key);
+      // Safely store to localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(`${action.payload.type}ApiKey`, action.payload.key);
+      }
       return {
         ...state,
         apiKeys: newApiKeys
+      };
+    
+    case ActionTypes.SET_GOOGLE_SEARCH_ENGINE_ID:
+      // Safely store to localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('googleSearchEngineId', action.payload);
+      }
+      return {
+        ...state,
+        googleSearchEngineId: action.payload
       };
     
     case ActionTypes.TOGGLE_SIDEBAR:
@@ -183,12 +174,6 @@ function appReducer(state, action) {
       return {
         ...state,
         activeTab: action.payload
-      };
-    
-    case ActionTypes.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload
       };
     
     case ActionTypes.SET_ERROR:
@@ -204,11 +189,18 @@ function appReducer(state, action) {
         success: action.payload,
         loading: false
       };
-      case ActionTypes.CLEAR_MESSAGES:
+    
+    case ActionTypes.CLEAR_MESSAGES:
       return {
         ...state,
         error: null,
         success: null
+      };
+    
+    case ActionTypes.SET_SELECTED_LANGUAGE:
+      return {
+        ...state,
+        selectedLanguage: action.payload
       };
     
     case ActionTypes.SHOW_QUIZ_MODAL:
@@ -255,14 +247,48 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Check for existing auth token on mount
+  // Initialize localStorage values after component mounts
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    // Initialize API keys from localStorage
+    const geminiKey = getFromLocalStorage('geminiApiKey');
+    if (geminiKey) {
+      dispatch({
+        type: ActionTypes.SET_API_KEY,
+        payload: { type: 'gemini', key: geminiKey }
+      });
+    }
+
+    const googleSearchKey = getFromLocalStorage('googleSearchApiKey');
+    if (googleSearchKey) {
+      dispatch({
+        type: ActionTypes.SET_API_KEY,
+        payload: { type: 'googleSearch', key: googleSearchKey }
+      });
+    }
+
+    const googleSearchEngineId = getFromLocalStorage('googleSearchEngineId');
+    if (googleSearchEngineId) {
+      dispatch({
+        type: ActionTypes.SET_GOOGLE_SEARCH_ENGINE_ID,
+        payload: googleSearchEngineId
+      });
+    }
+
+    // Initialize selected language from localStorage
+    const savedLanguage = getFromLocalStorage('selectedLanguage', 'en');
+    dispatch({
+      type: ActionTypes.SET_SELECTED_LANGUAGE,
+      payload: savedLanguage
+    });
+
+    // Check for existing auth token
+    const token = getFromLocalStorage('accessToken');
+    const userEmail = getFromLocalStorage('userEmail');
     if (token) {
       dispatch({
         type: ActionTypes.SET_AUTH,
         payload: {
-          user: { email: localStorage.getItem('userEmail') || '' },
+          user: { email: userEmail || '' },
           accessToken: token
         }
       });

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import articleService from '../../services/articleService';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import Button from '../ui/Button';
 
 function SearchPanel({ onArticleSelect }) {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [searchTerm, setSearchTerm] = useState(state.searchTerm);
 
@@ -12,7 +14,7 @@ function SearchPanel({ onArticleSelect }) {
     if (!searchTerm.trim()) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք մուտքագրել որոնման բառ։'
+        payload: t('search.enterKeyword')
       });
       return;
     }
@@ -35,7 +37,7 @@ function SearchPanel({ onArticleSelect }) {
         if (result.data.length === 0) {
           dispatch({
             type: ActionTypes.SET_ERROR,
-            payload: 'Ոչ մի արդյունք չգտնվեց։'
+            payload: t('search.noResults')
           });
         }
       } else {
@@ -48,11 +50,10 @@ function SearchPanel({ onArticleSelect }) {
           payload: result.error
         });
       }
-    } catch (error) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: 'Որոնման ժամանակ տեղի ունեցավ սխալ։'
-      });
+    } catch (error) {        dispatch({
+          type: ActionTypes.SET_ERROR,
+          payload: t('search.searchError')
+        });
     } finally {
       dispatch({ type: ActionTypes.SET_SEARCHING, payload: false });
     }
@@ -77,7 +78,7 @@ function SearchPanel({ onArticleSelect }) {
       {/* Search Header */}
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">
-          Հոդվածների որոնում
+          {t('search.title')}
         </h2>
         
         <div className="space-y-3">
@@ -87,7 +88,7 @@ function SearchPanel({ onArticleSelect }) {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Մուտքագրեք որոնման բառ..."
+              placeholder={t('search.placeholder')}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-gray-50 focus:bg-white transition-colors"
               disabled={state.isSearching}
             />
@@ -107,7 +108,7 @@ function SearchPanel({ onArticleSelect }) {
             loading={state.isSearching}
             className="w-full"
           >
-            {state.isSearching ? 'Որոնում...' : 'Որոնել'}
+            {state.isSearching ? t('search.searching') : t('search.searchButton')}
           </Button>
         </div>
       </div>
@@ -116,12 +117,12 @@ function SearchPanel({ onArticleSelect }) {
       <div className="flex-1 overflow-y-auto">
         {state.isSearching ? (
           <div className="p-8">
-            <LoadingSpinner size="md" text="Որոնում..." />
+            <LoadingSpinner size="md" text={t('search.searching')} />
           </div>
         ) : state.searchResults.length > 0 ? (
           <div className="p-4 space-y-3">
             <h3 className="text-sm font-medium text-gray-700 mb-2">
-              Գտնվել է {state.searchResults.length} արդյունք
+              {t('search.resultsCount', { count: state.searchResults.length })}
             </h3>
             {state.searchResults.map((article, index) => (
               <div
@@ -134,7 +135,7 @@ function SearchPanel({ onArticleSelect }) {
                 `}
               >
                 <h4 className="font-medium text-gray-900 text-sm line-clamp-2 mb-2">
-                  {article.mainTitle || article.shortTitle || 'Անունակի հոդված'}
+                  {article.mainTitle || article.shortTitle || t('search.untitledArticle')}
                 </h4>
                 
                 {article.summary && (

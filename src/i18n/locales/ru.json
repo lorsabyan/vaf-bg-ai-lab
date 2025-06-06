@@ -1,0 +1,292 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успех",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "back": "Назад",
+    "next": "Далее",
+    "previous": "Предыдущий",
+    "confirm": "Подтвердить",
+    "yes": "Да",
+    "no": "Нет"
+  },
+  "header": {
+    "title": "Brainograph AI Lab",
+    "subtitle": "VAF Educational Platform",
+    "apiKeyTooltip": "Ключ API Gemini"
+  },
+  "navigation": {
+    "search": "Поиск",
+    "quiz": "Викторина", 
+    "history": "История"
+  },
+  "auth": {
+    "login": "Войти",
+    "logout": "Выйти",
+    "email": "Email",
+    "password": "Пароль",
+    "emailPlaceholder": "введите ваш email",
+    "passwordPlaceholder": "введите ваш пароль",
+    "loginSuccess": "Успешно вошли в систему",
+    "loginError": "Произошла ошибка входа",
+    "logoutSuccess": "Успешно вышли из системы",
+    "welcome": "Добро пожаловать",
+    "appName": "Brainograph AI Lab",
+    "loggingIn": "Вход в систему...",
+    "requiredFields": "Email и пароль обязательны.",
+    "poweredBy": "При поддержке"
+  },
+  "search": {
+    "title": "Поиск статей",
+    "placeholder": "Введите поисковый запрос...",
+    "searchButton": "Поиск",
+    "results": "Результаты поиска",
+    "resultsCount": "Найден {{count}} результат",
+    "resultsCount_plural": "Найдено {{count}} результатов",
+    "noResults": "Результаты не найдены",
+    "searching": "Поиск...",
+    "searchError": "Произошла ошибка при поиске",
+    "selectArticle": "Выберите статью из левой панели для просмотра содержимого",
+    "untitledArticle": "Статья без названия",
+    "enterKeyword": "Пожалуйста, введите ключевое слово для поиска",
+    "startSearching": "Начните поиск, введя ключевое слово"
+  },
+  "quiz": {
+    "modal": {
+      "title": "Настройки создания викторины",
+      "selectedArticle": "Выбранная статья",
+      "charactersCount": "символов",
+      "noArticleSelected": "Статья не выбрана. Пожалуйста, сначала выберите статью из раздела поиска статей.",
+      "aiInstructions": "Инструкции для AI",
+      "instructionsPlaceholder": "Введите специальные инструкции для создания викторины...",
+      "aiModel": "Модель AI",
+      "creativityLevel": "Уровень креативности (температура)",
+      "conservative": "Консервативный (0.0)",
+      "balanced": "Сбалансированный (1.0)",
+      "creative": "Креативный (2.0)",
+      "apiKeyRequired": "Для создания викторины требуется ключ API Gemini",
+      "setApiKey": "Установить ключ API",
+      "cancel": "Отмена",
+      "generating": "Викторина создается...",
+      "generateQuiz": "Создать викторину"
+    },
+    "generator": {
+      "title": "Создать викторину",
+      "subtitle": "Создавайте викторины с помощью AI из выбранных статей",
+      "selectedArticle": "Выбранная статья",
+      "contentAvailable": "Доступный контент: {{count}} символов",
+      "noArticleSelected": "Статья не выбрана. Пожалуйста, сначала выберите статью из раздела поиска статей.",
+      "quizTemplate": "Шаблон викторины",
+      "customInstructions": "Специальные инструкции",
+      "instructionsPlaceholder": "Введите специальные инструкции для создания викторины...",
+      "aiModel": "Модель AI",
+      "creativityLevel": "Уровень креативности (температура): {{temperature}}",
+      "conservative": "Консервативный (0.0)",
+      "balanced": "Сбалансированный (0.5)",
+      "creative": "Креативный (1.0)",
+      "apiKeyRequired": "Для создания викторины требуется ключ API Gemini",
+      "setApiKey": "Установить ключ API",
+      "generatingQuiz": "Создание викторины...",
+      "generateQuiz": "Создать викторину"
+    },
+    "interface": {
+      "quizError": "Ошибка викторины",
+      "noQuestionsAvailable": "Вопросы викторины недоступны.",
+      "close": "Закрыть",
+      "results": "Результаты викторины",
+      "excellent": "Отлично!",
+      "goodJob": "Хорошая работа!",
+      "keepPracticing": "Продолжайте практиковаться!",
+      "correctAnswers": "Вы правильно ответили на {{correct}} из {{total}} вопросов.",
+      "saveResults": "Сохранить результаты",
+      "questionProgress": "Вопрос {{current}} из {{total}}",
+      "percentComplete": "Завершено {{percent}}%",
+      "previous": "Назад",
+      "cancel": "Отмена",
+      "nextQuestion": "Следующий вопрос",
+      "finishQuiz": "Завершить викторину",
+      "yourAnswer": "(Ваш ответ)"
+    },
+    "history": {
+      "title": "История викторин",
+      "statistics": "Статистика викторин",
+      "noHistoryTitle": "История викторин отсутствует",
+      "noHistoryMessage": "Вы еще не прошли ни одной викторины. Создайте и пройдите викторину, чтобы увидеть свои результаты здесь.",
+      "noHistory": "История викторин не найдена",
+      "clearHistory": "Очистить историю",
+      "confirmClearHistory": "Вы уверены, что хотите очистить всю историю викторин? Это действие нельзя отменить.",
+      "confirmDeleteQuiz": "Вы уверены, что хотите удалить результат этой викторины?",
+      "historyCleared": "История викторин очищена",
+      "quizDeleted": "Результат викторины удален",
+      "loadError": "Ошибка загрузки истории викторин",
+      "totalQuizzes": "Всего викторин",
+      "averageScore": "Средний результат",
+      "bestScore": "Лучший результат",
+      "recentAverage": "Последний средний",
+      "excellent": "Отлично",
+      "good": "Хорошо",
+      "needsImprovement": "Требует улучшения",
+      "viewDetails": "Посмотреть детали",
+      "delete": "Удалить",
+      "completedOn": "Завершено: {{date}}",
+      "score": "Результат: {{score}}%",
+      "questions": "Вопросы: {{count}}",
+      "model": "Модель: {{model}}",
+      "untitledQuiz": "Викторина без названия",
+      "correctAnswers": "{{correct}} / {{total}} правильно",
+      "quizDetails": "Детали викторины",
+      "close": "Закрыть",
+      "correctAnswer": "✓",
+      "yourAnswer": "(Ваш ответ)"
+    },
+    "interfacePage": {
+      "quizError": "Ошибка викторины",
+      "noQuestionsMessage": "Вопросы викторины недоступны.",
+      "backToArticle": "Вернуться к статье",
+      "quizResults": "Результаты викторины",
+      "newQuiz": "Новая викторина",
+      "excellent": "Отлично!",
+      "goodJob": "Хорошая работа!",
+      "keepPracticing": "Продолжайте практиковаться!",
+      "detailedResults": "Подробные результаты",
+      "correctAnswerLabel": "✓ Правильный ответ",
+      "yourAnswerLabel": "Ваш ответ",
+      "quiz": "Викторина",
+      "questionNumber": "Вопрос {{current}} / {{total}}",
+      "close": "Закрыть",
+      "difficulty": "Сложность:",
+      "checkAnswer": "Проверить ответ",
+      "correctFeedback": "Правильно!",
+      "incorrectFeedback": "Неправильно: Правильным ответом был \"{{correct}}\"",
+      "notAnsweredFeedback": "Не отвечено: Пожалуйста, выберите ответ.",
+      "explanation": "Объяснение:",
+      "previous": "Назад",
+      "next": "Далее",
+      "finishQuiz": "Завершить викторину",
+      "scoreMessage": "Вы правильно ответили на {{correct}} из {{total}} вопросов."
+    },
+    "errors": {
+      "apiKeyRequired": "Пожалуйста, сначала выберите статью из раздела поиска статей.",
+      "noArticleSelected": "Выбранная статья не содержит контента для создания викторины.",
+      "generationFailed": "Не удалось создать викторину. Пожалуйста, попробуйте еще раз.",
+      "generationError": "Не удалось создать викторину. Пожалуйста, проверьте ваш ключ API и попробуйте еще раз.",
+      "completionSuccess": "Викторина успешно завершена!",
+      "quizGeneratedSuccess": "Викторина успешно создана с {{count}} вопросами!",
+      "quizCompletedSuccess": "Викторина завершена! Результат: {{score}}/{{total}}"
+    }
+  },
+  "tooltip": {
+    "explanation": "Объяснение",
+    "images": "Изображения",
+    "links": "Ссылки",
+    "citations": "Цитаты",
+    "loadingImages": "Загрузка изображений...",
+    "loadingLinks": "Загрузка ссылок...",
+    "loadingCitations": "Загрузка цитат...",
+    "noImages": "Связанные изображения не найдены",
+    "noLinks": "Связанные ссылки не найдены",
+    "noCitations": "Цитаты не найдены",
+    "poweredByGoogle": "Поддерживается Google Search"
+  },
+  "apiKey": {
+    "title": "Настройки API",
+    "gemini": {
+      "title": "Gemini AI",
+      "label": "Ключ API Gemini",
+      "placeholder": "Ваш ключ API Gemini",
+      "getKeyLink": "Как получить ключ API Gemini →"
+    },
+    "googleSearch": {
+      "title": "Google Поиск",
+      "apiKeyLabel": "Ключ API Google Search",
+      "apiKeyPlaceholder": "Ваш ключ API Google Custom Search",
+      "engineIdLabel": "ID поисковой системы",
+      "engineIdPlaceholder": "Ваш ID Custom Search Engine",
+      "bothRequired": "Требуются как ключ API, так и ID поисковой системы",
+      "successMessage": "Настройки Google Search API успешно сохранены",
+      "clearMessage": "Настройки Google Search API очищены",
+      "errorMessage": "Настройки Google Search API недействительны. {{error}}",
+      "getApiKeyLink": "Получить ключ API Google Custom Search →",
+      "createEngineLink": "Создать Custom Search Engine →"
+    },
+    "save": "Сохранить",
+    "clear": "Очистить",
+    "required": "Пожалуйста, введите ключ API Gemini",
+    "successMessage": "Ключ API успешно сохранен",
+    "clearMessage": "Ключ API очищен",
+    "errorMessage": "Ключ API недействителен. {{error}}",
+    "validating": "Проверка...",
+    "storageInfo": "Ключи сохраняются в localStorage вашего браузера."
+  },
+  "language": {
+    "select": "Выбрать язык",
+    "current": "Текущий язык",
+    "languages": {
+      "hy": "Արևելահայերեն",
+      "hyw": "Արևմտահայերեն",
+      "en": "English",
+      "ru": "Русский"
+    }
+  },
+  "articleToolbar": {
+    "title": "Инструменты статьи",
+    "selectAndExplain": "Выбрать и объяснить",
+    "keyPoints": "Ключевые точки",
+    "quiz": "Создать тест",
+    "translate": "Перевести",
+    "showOriginal": "Показать оригинал",
+    "translated": "Переведено",
+    "selectModeActive": "Выберите текст для получения объяснения"
+  },
+  "articleViewer": {
+    "errors": {
+      "apiKeyRequired": "Пожалуйста, сначала введите ключ API Gemini.",
+      "noArticleSelected": "Пожалуйста, сначала выберите статью.",
+      "explanationFailed": "Не удалось получить объяснение.",
+      "keyPointsFailed": "Не удалось получить ключевые точки.",
+      "keyPointsError": "Произошла ошибка при получении ключевых точек. ({{error}})",
+      "keyPointsTruncated": "Ответ с ключевыми точками был слишком длинным и был обрезан. Попробуйте с более короткой статьей.",
+      "contentNotAvailable": "Содержимое недоступно.",
+      "translationFailed": "Не удалось перевести статью.",
+      "translationError": "Произошла ошибка при переводе статьи. ({{error}})"
+    },
+    "loading": {
+      "explanation": "Загрузка объяснения...",
+      "general": "Загрузка...",
+      "keyPoints": "Загрузка ключевых точек...",
+      "translation": "Перевод статьи...",
+      "translationDescription": "Сохранение оригинального форматирования и структуры"
+    },
+    "noArticle": {
+      "title": "Выберите статью",
+      "message": "Выберите статью из левой панели для просмотра содержимого"
+    },
+    "buttons": {
+      "keyPoints": "Ключевые точки",
+      "quiz": "Викторина"
+    },
+    "hint": {
+      "title": "Подсказка:",
+      "message": "Вы можете получить объяснение, выделив любой текст."
+    },
+    "modals": {
+      "keyPointsTitle": "Ключевые точки",
+      "translationTitle": "Перевод"
+    },
+    "prompts": {
+      "keyPointsPrefix": "Полный текст статьи следующий:",
+      "keyPointsInstructions": "Пожалуйста, извлеките ключевые точки из этой статьи на армянском языке. Представьте их в виде короткого, ясного списка точек. Начинайте каждую точку с новой строки."
+    }
+  },
+  "validation": {
+    "required": "Это поле обязательно",
+    "invalidEmail": "Неверный формат email",
+    "minLength": "Минимум {{count}} символов",
+    "maxLength": "Максимум {{count}} символов"
+  }
+}

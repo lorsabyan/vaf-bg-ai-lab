@@ -6,7 +6,7 @@ function Sidebar() {
   const { state, dispatch, ActionTypes } = useApp();
 
   useEffect(() => {
-    // Close sidebar on tab change for mobile
+    // Auto-close sidebar when resizing to desktop size
     const handleResize = () => {
       if (window.innerWidth >= 1024) { // lg breakpoint
         dispatch({ type: ActionTypes.TOGGLE_SIDEBAR });

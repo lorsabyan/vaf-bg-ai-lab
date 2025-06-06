@@ -6,7 +6,7 @@ import MainContent from './MainContent';
 import LoginForm from '../auth/LoginForm';
 import MessageToast from '../ui/MessageToast';
 
-function Layout() {
+const Layout = React.memo(function Layout({ children }) {
   const { state } = useApp();
 
   if (!state.isAuthenticated) {
@@ -26,8 +26,9 @@ function Layout() {
         <MainContent />
       </div>
       <MessageToast />
+      {children}
     </div>
   );
-}
+});
 
 export default Layout;

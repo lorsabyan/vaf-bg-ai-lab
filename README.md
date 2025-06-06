@@ -1,15 +1,25 @@
 # Brainograph AI Lab - VAF Educational Platform
 
-🚀 **[Live Demo](https://lorsabyan.github.io/vaf-bg-ai-lab)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
+> **🎉 Recently migrated from Create React App to Next.js for improved performance and static site generation!**
 
-An AI-driven React.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
+🚀 **[Live Demo V1](https://lorsabyan.github.io/vaf-bg-ai-lab)** | **[Live Demo V2](https://lorsabyan.github.io/vaf-bg-ai-lab/v2/)** | 📋 [Documentation](#getting-started) | 🔗 [VAF Website](https://visualarmenia.org/)
+
+An AI-driven Next.js application that combines article exploration and quiz generation functionality. Built for the [VAF (Visual Armenia Development Foundation)](https://visualarmenia.org/) educational platform.
 
 ## Features
 
 ### 📚 Article Explorer
 
 - **Search & Browse**: Search through educational articles
-- **Text Selection Explanations**: Select any text in articles to get AI-powered explanations
+- **Enhanced Text Selection Tooltips**: Select any text in articles to get comprehensive information:
+  - 💡 **AI-Powered Explanations**: Contextual explanations using Gemini AI
+  - 🖼️ **Relevant Images**: Visual content from Google Image Search
+  - 🔗 **Educational Links**: Curated web resources from educational sites
+  - 📚 **Academic Citations**: Scholarly references and academic sources
+- **Multi-Strategy Search**: Intelligent fallback mechanisms for optimal results
+- **Contextual Search**: Uses article context to improve search relevance
+- **Key Points Extraction**: AI-generated summaries of main article points
+- **Article Translation**: Translate articles to different languages while preserving formatting
 - **Responsive Article Viewer**: Clean, readable article display with mobile optimization
 
 ### 🧠 AI-Powered Quiz Generation
@@ -43,19 +53,26 @@ An AI-driven React.js application that combines article exploration and quiz gen
 
 ## Technology Stack
 
-- **Frontend**: React.js 19 with functional components and hooks
+- **Frontend**: Next.js 14 with React 18 functional components and hooks
 - **Styling**: TailwindCSS 3 for responsive design
-- **AI Integration**: Google Generative AI (Gemini) SDK
+- **AI Integration**: Google Generative AI (Gemini) SDK for explanations and quiz generation
+- **Search Integration**: Google Custom Search API for images, links, and citations
 - **State Management**: React Context API with useReducer
-- **Build Tool**: Create React App
-- **Deployment**: GitHub Pages ready
+- **Build Tool**: Next.js with static site generation
+- **Deployment**: 
+  - GitHub Pages with multi-version support
+  - Automated CI/CD with GitHub Actions
+  - Optimized static export for production
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 16+ and npm
-- Gemini AI API key from Google AI Studio
+- **Gemini AI API key** from [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **Google Custom Search API key** and **Search Engine ID** (optional, for enhanced tooltips)
+  - Get API key from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+  - Create Custom Search Engine at [Google Programmable Search](https://programmablesearchengine.google.com/)
 
 ### Installation
 
@@ -75,18 +92,41 @@ An AI-driven React.js application that combines article exploration and quiz gen
 3. **Start development server**:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
-4. **Open in browser**: Navigate to `http://localhost:3000/vaf-bg-ai-lab`
+4. **Open in browser**: Navigate to `http://localhost:3000`
 
 ### Deployment
 
-**Deploy to GitHub Pages**:
+#### Single Version Deployment
+For deploying a single version to GitHub Pages:
 
 ```bash
 npm run deploy
 ```
+
+#### Multi-Version Deployment
+The project supports deploying multiple versions simultaneously:
+
+- **V1 (Stable)**: `https://lorsabyan.github.io/vaf-bg-ai-lab/` (root path)
+- **V2 (Latest)**: `https://lorsabyan.github.io/vaf-bg-ai-lab/v2/`
+- **Version Selector**: `https://lorsabyan.github.io/vaf-bg-ai-lab/version-info.html`
+
+**Automatic Deployment** (Recommended):
+- Push to `release/v1` or `release/v2` branches
+- GitHub Actions automatically deploys both versions
+
+**Manual Multi-Version Deployment**:
+```bash
+# Deploy both V1 and V2 from their respective branches
+./deploy.sh
+
+# Alternative using npm script
+npm run deploy:versions
+```
+
+For detailed deployment documentation, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Usage Guide
 
@@ -100,7 +140,15 @@ npm run deploy
 - Use the **"Հոդվածների որոնում"** (Article Search) tab
 - Search for articles using keywords
 - Click on any article to view its content
-- Select any text to get AI explanations (requires Gemini API key)
+- **Enhanced Text Selection Features**:
+  - Click **"Select and Explain"** to enable selection mode
+  - Select any text to open an enhanced tooltip with 4 tabs:
+    - 💡 **Explanation**: AI-powered contextual explanations
+    - 🖼️ **Images**: Relevant visual content from Google Search
+    - 🔗 **Links**: Educational web resources and articles
+    - 📚 **Citations**: Academic references and scholarly sources
+- **Key Points**: Generate AI-powered summaries of article highlights
+- **Translation**: Translate articles while preserving HTML formatting
 
 ### 3. Quiz Generation
 
@@ -132,18 +180,36 @@ npm run deploy
 ### API Keys
 
 - **Gemini AI**: Required for quiz generation and text explanations
-- Get your key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-- Add the key via the 🔑 button in the app header
+  - Get your key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+  - Add the key via the 🔑 button in the app header
+- **Google Custom Search** (Optional): Enables enhanced tooltips with images, links, and citations
+  - **API Key**: Get from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+  - **Search Engine ID**: Create at [Google Programmable Search](https://programmablesearchengine.google.com/)
+  - Configure both in the API settings for full tooltip functionality
 
 ### Environment Variables
 
 For production deployment, you can set:
 
 - `REACT_APP_GEMINI_API_KEY`: Default Gemini API key
+- `REACT_APP_GOOGLE_SEARCH_API_KEY`: Google Custom Search API key
+- `REACT_APP_GOOGLE_SEARCH_ENGINE_ID`: Google Custom Search Engine ID
 
-## Development
+## Project Structure & Deployment
 
-### Project Structure
+### Development Branches
+- **`main`**: Primary development branch
+- **`release/v1`**: Stable production version (deployed to root path)
+- **`release/v2`**: Latest development version (deployed to `/v2` path)
+
+### GitHub Pages Setup
+- **Automatic Deployment**: GitHub Actions workflow triggers on pushes to release branches
+- **Multi-Version Support**: Both versions deployed simultaneously to different paths
+- **Version Selector**: Beautiful landing page to choose between versions
+
+For detailed deployment configuration, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Directory Structure
 
 ```text
 src/
@@ -155,6 +221,10 @@ src/
 │   └── ui/               # Reusable UI components
 ├── context/              # React Context for state management
 ├── services/             # API and external service calls
+│   ├── articleService.js    # Article data management
+│   ├── authService.js       # Authentication logic
+│   ├── googleSearchService.js # Google Search API integration
+│   └── quizService.js       # Gemini AI quiz generation
 └── utils/                # Constants and utilities
 ```
 
@@ -164,7 +234,47 @@ src/
 - **QuizGenerator**: AI-powered quiz creation
 - **QuizInterface**: Interactive quiz taking
 - **QuizHistory**: Results tracking and analytics
-- **ArticleViewer**: Article display with AI explanations
+- **ArticleViewer**: Article display with AI explanations and enhanced tooltips
+- **EnhancedTooltip**: Multi-tab tooltip with images, links, and citations
+- **GoogleSearchService**: Integration with Google Custom Search API
+
+## Performance Optimizations
+
+The application has been optimized for performance with the following React optimizations:
+
+### 🚀 Memoization Strategy
+
+- **useMemo**: Expensive calculations cached to prevent unnecessary recalculation
+  - Article content formatting (HTML parsing and text extraction)
+  - Language-specific difficulty mappings
+  - Quiz question metadata processing
+  - Search result filtering and sorting
+
+- **useCallback**: Event handlers memoized to prevent child component re-renders
+  - Text selection handlers for AI explanations
+  - Quiz navigation and answer selection
+  - Modal and dialog interactions
+  - API call handlers for quiz generation and translation
+
+- **React.memo**: Components wrapped to prevent unnecessary re-renders
+  - Layout component for stable UI structure
+  - ArticleViewer for heavy content processing
+  - Quiz interface components for smooth interactions
+
+### ⚡ Performance Benefits
+
+- **Reduced Re-renders**: Significant reduction in unnecessary component updates
+- **Faster Text Processing**: Article formatting operations cached for reuse
+- **Smoother Interactions**: Quiz and article interactions respond faster
+- **Memory Efficiency**: Expensive operations computed only when dependencies change
+- **Better UX**: More responsive interface, especially on mobile devices
+
+### 🔧 Technical Implementation
+
+- Strategic use of dependency arrays in hooks to control re-computation
+- Content memoization for AI operations (explanations, translations, key points)
+- Event handler optimization to prevent child component cascading updates
+- Component-level memoization for heavy rendering operations
 
 ## Features in Detail
 
@@ -177,14 +287,39 @@ The app uses Google's Gemini AI to generate contextual quizzes from any article:
 - Ensures questions test comprehension and key concepts
 - Supports various difficulty levels and question types
 
-### Text Selection Explanations
+### Enhanced Text Selection Tooltips
 
-Select any text in articles to get instant AI explanations:
+Select any text in articles to get comprehensive information through a modern, tabbed interface:
 
-- Contextual definitions and explanations
-- Historical background where relevant
-- Connection to broader topics
-- Simplified explanations for complex concepts
+#### 💡 AI Explanations
+- **Contextual Definitions**: Understanding terms within their article context
+- **Historical Background**: Relevant historical information and context
+- **Concept Connections**: How selected terms relate to broader topics
+- **Simplified Explanations**: Complex concepts broken down for better understanding
+
+#### 🖼️ Visual Content (Google Images)
+- **Relevant Images**: Contextually appropriate visual content
+- **Educational Focus**: Prioritizes educational and informative images
+- **Multiple Search Strategies**: Fallback mechanisms for optimal results
+- **High-Quality Sources**: Curated from reliable image sources
+
+#### 🔗 Educational Resources (Web Links)
+- **Curated Sources**: Links from educational institutions (.edu, .org, .gov)
+- **Wikipedia Integration**: Reliable encyclopedia entries
+- **Academic Publishers**: Links to britannica.com and other educational sites
+- **Contextual Relevance**: Links related to the selected text and article context
+
+#### 📚 Academic Citations
+- **Scholarly Sources**: Research papers and academic publications
+- **Citation Metadata**: Author information and publication years when available
+- **Academic Databases**: Sources from ResearchGate, Academia.edu, ArXiv, PubMed
+- **Google Scholar Integration**: Academic search results with proper citations
+
+#### 🔧 Technical Features
+- **Multi-Strategy Search**: Tries simple, enhanced, and minimal search approaches
+- **Contextual Keywords**: Uses surrounding article text to improve search relevance
+- **Performance Optimization**: Concurrent API calls with intelligent fallbacks
+- **Comprehensive Debugging**: Detailed logging for troubleshooting and optimization
 
 ### Mobile-First Design
 
@@ -214,13 +349,40 @@ For support and questions:
 
 ## Roadmap
 
+### 🚀 Upcoming Features
 - [ ] Advanced quiz types (true/false, short answer)
 - [ ] Collaborative quiz sharing
 - [ ] Advanced analytics and progress tracking
 - [ ] Offline mode support
-- [ ] Multiple language support
+- [ ] Multiple language support for tooltips
 - [ ] Integration with more AI models
-- [ ] Advanced article formatting and media support
+- [ ] Cross-version feature synchronization
+- [ ] Version-specific settings and preferences
+
+### 🔄 Multi-Version Development
+- [ ] Branch-specific feature toggles
+- [ ] Version comparison tools
+- [ ] Automated version migration utilities
+- [ ] Independent version analytics
+
+### 🔍 Search & Discovery Enhancements
+- [ ] Advanced article filtering and categorization
+- [ ] Bookmarking and favorites system
+- [ ] Full-text search across articles
+- [ ] Related articles suggestions
+
+### 🌐 Google Search API Improvements
+- [ ] Video content integration from YouTube EDU
+- [ ] News articles related to selected topics
+- [ ] Interactive maps and geographical context
+- [ ] Timeline integration for historical topics
+- [ ] Scientific data and charts integration
+
+### 📊 Analytics & Insights
+- [ ] Learning progress tracking
+- [ ] Topic mastery indicators
+- [ ] Personalized content recommendations
+- [ ] Usage analytics and insights dashboard
 
 ---
 

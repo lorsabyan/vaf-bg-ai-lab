@@ -1,0 +1,290 @@
+{
+  "common": {
+    "loading": "Կը բեռնուի...",
+    "error": "Սխալ",
+    "success": "Յաջողութիւն",
+    "cancel": "Չեղարկել",
+    "close": "Փակել",
+    "save": "Պահել",
+    "delete": "Ջնջել",
+    "edit": "Խմբագրել",
+    "back": "Վերադառնալ",
+    "next": "Հաջորդ",
+    "previous": "Նախորդ",
+    "confirm": "Հաստատել",
+    "yes": "Այո",
+    "no": "Ոչ"
+  },
+  "header": {
+    "title": "Brainograph AI Lab",
+    "subtitle": "VAF Educational Platform",
+    "apiKeyTooltip": "Gemini API բանալի"
+  },
+  "navigation": {
+    "search": "Որոնում",
+    "quiz": "Վիկտորինա", 
+    "history": "Պատմութիւն"
+  },
+  "auth": {
+    "login": "Մուտք գործել",
+    "logout": "Դուրս գալ",
+    "email": "Էլեկտրոնային փոստ",
+    "password": "Գաղտնաբառ",
+    "emailPlaceholder": "մուտքագրէք էլ. փոստը",
+    "passwordPlaceholder": "մուտքագրէք գաղտնաբառը",
+    "loginSuccess": "Յաջողութեամբ մուտք գործեցիք",
+    "loginError": "Մուտքի ժամանակ տեղի ունեցաւ սխալ",
+    "logoutSuccess": "Դուք յաջողութեամբ դուրս եկաք",
+    "welcome": "Բարի գալուստ",
+    "appName": "Brainograph AI Lab",
+    "loggingIn": "Մուտք գործում...",
+    "requiredFields": "Էլ. փոստը եւ գաղտնաբառը պարտադիր են։",
+    "poweredBy": "Աջակցութիւն՝"
+  },
+  "search": {
+    "title": "Հոդուածներու որոնում",
+    "placeholder": "Մուտքագրէք որոնման բառ...",
+    "searchButton": "Որոնել",
+    "results": "Որոնման արդիւնքներ",
+    "resultsCount": "Գտնուեցաւ {{count}} արդիւնք",
+    "noResults": "Արդիւնքներ չկան",
+    "searching": "Կ'որոնեմ...",
+    "searchError": "Որոնման ժամանակ տեղի ունեցաւ սխալ։",
+    "selectArticle": "Ընտրէք հոդուած ձախ վահանակէն՝ բովանդակութիւնը դիտելու համար",
+    "untitledArticle": "Անունակի հոդուած",
+    "enterKeyword": "Խնդրուում ենք մուտքագրել որոնման բառ",
+    "startSearching": "Սկսէք որոնումը բառ մուտքագրելով"
+  },
+  "quiz": {
+    "modal": {
+      "title": "Վիկտորինայի ստեղծման կարգաւորումներ",
+      "selectedArticle": "Ընտրուած հոդուած",
+      "charactersCount": "նիշ",
+      "noArticleSelected": "Հոդուած ընտրուած չէ: Խնդրուում ենք նախ ընտրել հոդուած հոդուածներու որոնման բաժնէն:",
+      "aiInstructions": "AI հուշում",
+      "instructionsPlaceholder": "Մուտքագրէք վիկտորինա ստեղծելու համար հատուկ հրահանգներ...",
+      "aiModel": "AI մոդել",
+      "creativityLevel": "Ստեղծագործական մակարդակ (ջերմաստիճան)",
+      "conservative": "Պահպանողական (0.0)",
+      "balanced": "Հաւասարակշռուած (1.0)",
+      "creative": "Ստեղծագործական (2.0)",
+      "apiKeyRequired": "Վիկտորինա ստեղծելու համար անհրաժեշտ է Gemini API բանալի",
+      "setApiKey": "Սահմանել API բանալի",
+      "cancel": "Չեղարկել",
+      "generating": "Վիկտորինա ստեղծուիլ է...",
+      "generateQuiz": "Ստեղծել վիկտորինա"
+    },
+    "generator": {
+      "title": "Վիկտորինա ստեղծել",
+      "subtitle": "Ընտրուած հոդուածներէն AI-ի օգնութեամբ վիկտորինաներ ստեղծէք",
+      "selectedArticle": "Ընտրուած հոդուած",
+      "contentAvailable": "Հասանելի բովանդակութիւն՝ {{count}} նիշ",
+      "noArticleSelected": "Հոդուած ընտրուած չէ: Խնդրուում ենք նախ ընտրել հոդուած հոդուածներու որոնման բաժնէն:",
+      "quizTemplate": "Վիկտորինայի ձեւ",
+      "customInstructions": "Հատուկ հրահանգներ",
+      "instructionsPlaceholder": "Մուտքագրէք վիկտորինա ստեղծելու համար հատուկ հրահանգներ...",
+      "aiModel": "AI մոդել",
+      "creativityLevel": "Ստեղծագործական մակարդակ (ջերմաստիճան)՝ {{temperature}}",
+      "conservative": "Պահպանողական (0.0)",
+      "balanced": "Հաւասարակշռուած (0.5)",
+      "creative": "Ստեղծագործական (1.0)",
+      "apiKeyRequired": "Վիկտորինա ստեղծելու համար անհրաժեշտ է Gemini API բանալի",
+      "setApiKey": "Սահմանել API բանալի",
+      "generatingQuiz": "Վիկտորինա ստեղծուիլ է...",
+      "generateQuiz": "Ստեղծել վիկտորինա"
+    },
+    "interface": {
+      "quizError": "Վիկտորինայի սխալ",
+      "noQuestionsAvailable": "Վիկտորինայի հարցեր հասանելի չեն:",
+      "close": "Փակել",
+      "results": "Վիկտորինայի արդիւնքներ",
+      "excellent": "Գերազանց!",
+      "goodJob": "Լաւ արդիւնք!",
+      "keepPracticing": "Շարունակէք պարապիլ!",
+      "correctAnswers": "Դուք ճիշդ պատասխանած էք {{correct}}-ը {{total}}-էն:",
+      "saveResults": "Պահել արդիւնքները",
+      "questionProgress": "Հարց {{current}}-ը {{total}}-էն",
+      "percentComplete": "Աւարտուած է {{percent}}%-ը",
+      "previous": "Նախորդ",
+      "cancel": "Չեղարկել",
+      "nextQuestion": "Հաջորդ հարց",
+      "finishQuiz": "Աւարտել վիկտորինան",
+      "yourAnswer": "(Ձեր պատասխանը)"
+    },
+    "history": {
+      "title": "Վիկտորինաներու պատմութիւն",
+      "statistics": "Վիկտորինաներու վիճակագրութիւն",
+      "noHistoryTitle": "Վիկտորինաներու պատմութիւն չկայ",
+      "noHistoryMessage": "Դուք տակաւին վիկտորինա չէք անցուցած: Ստեղծէք եւ անցուցէք վիկտորինա՝ ձեր արդիւնքները հոս տեսնելու համար:",
+      "noHistory": "Վիկտորինաներու պատմութիւն չի գտնուած",
+      "clearHistory": "Մաքրել պատմութիւնը",
+      "confirmClearHistory": "Վստա՞հ էք, որ կ'ուզէք ջնջել ամբողջ վիկտորինաներու պատմութիւնը: Այս գործողութիւնը հնարաւոր չէ յետ գործարկել:",
+      "confirmDeleteQuiz": "Վստա՞հ էք, որ կ'ուզէք ջնջել այս վիկտորինայի արդիւնքը:",
+      "historyCleared": "Վիկտորինաներու պատմութիւնը մաքրուեցաւ",
+      "quizDeleted": "Վիկտորինայի արդիւնքը ջնջուեցաւ",
+      "loadError": "Վիկտորինաներու պատմութիւնը բեռնելիս սխալ առաջացաւ",
+      "totalQuizzes": "Ընդհանուր վիկտորինաներ",
+      "averageScore": "Միջին գնահատական",
+      "bestScore": "Լաւագոյն գնահատական",
+      "recentAverage": "Վերջին միջին",
+      "excellent": "Գերազանց",
+      "good": "Լաւ",
+      "needsImprovement": "Կարիք է բարելաւման",
+      "viewDetails": "Դիտել մանրամասները",
+      "delete": "Ջնջել",
+      "completedOn": "Աւարտուած է՝ {{date}}",
+      "score": "Գնահատական՝ {{score}}%",
+      "questions": "Հարցեր՝ {{count}}",
+      "model": "Մոդել՝ {{model}}",
+      "untitledQuiz": "Անանուն վիկտորինա",
+      "correctAnswers": "{{correct}} / {{total}} ճիշտ",
+      "quizDetails": "Վիկտորինայի մանրամասները",
+      "close": "Փակել",
+      "correctAnswer": "✓",
+      "yourAnswer": "(Ձեր պատասխանը)"
+    },
+    "interfacePage": {
+      "quizError": "Վիկտորինայի սխալ",
+      "noQuestionsMessage": "Վիկտորինայի հարցեր հասանելի չեն:",
+      "backToArticle": "Վերադառնալ հոդուածին",
+      "quizResults": "Վիկտորինայի արդիւնքներ",
+      "newQuiz": "Նոր վիկտորինա",
+      "excellent": "Գերազանց!",
+      "goodJob": "Լաւ արդիւնք!",
+      "keepPracticing": "Շարունակէք պարապել!",
+      "detailedResults": "Մանրամասն արդիւնքներ",
+      "correctAnswerLabel": "✓ Ճիշտ պատասխան",
+      "yourAnswerLabel": "Ձեր պատասխանը",
+      "quiz": "Վիկտորինա",
+      "questionNumber": "Հարց {{current}} / {{total}}",
+      "close": "Փակել",
+      "difficulty": "Բարդութիւն՝",
+      "checkAnswer": "Ստուգել պատասխանը",
+      "correctFeedback": "Ճիշտ է!",
+      "incorrectFeedback": "Սխալ է՝ Ճիշտ պատասխանն էր «{{correct}}»",
+      "notAnsweredFeedback": "Պատասխանուած չէ՝ Խնդրուում ենք ընտրել պատասխան:",
+      "explanation": "Բացատրութիւն՝",
+      "previous": "Նախորդ",
+      "next": "Հաջորդ",
+      "finishQuiz": "Աւարտել վիկտորինան",
+      "scoreMessage": "Դուք ճիշտ պատասխանել էք {{correct}} հարցի {{total}}-էն:"
+    },
+    "errors": {
+      "apiKeyRequired": "Խնդրուում ենք նախ ընտրել հոդուած հոդուածներու որոնման բաժնէն:",
+      "noArticleSelected": "Ընտրուած հոդուածը բովանդակութիւն չունի վիկտորինա ստեղծելու համար:",
+      "generationFailed": "Վիկտորինան ստեղծելը ձախողուեցաւ: Խնդրուում ենք փորձել կրկին:",
+      "generationError": "Վիկտորինան ստեղծելը ձախողուեցաւ: Խնդրուում ենք ստուգել ձեր API բանալին եւ փորձել կրկին:",
+      "completionSuccess": "Վիկտորինան յաջողութեամբ աւարտուեցաւ!",
+      "quizGeneratedSuccess": "Վիկտորինան յաջողութեամբ ստեղծուեցաւ {{count}} հարցերով!",
+      "quizCompletedSuccess": "Վիկտորինան աւարտուեցաւ! Գնահատական՝ {{score}}/{{total}}"
+    }
+  },
+  "tooltip": {
+    "explanation": "Բացատրություն",
+    "images": "Նկարներ",
+    "links": "Յղումներ",
+    "citations": "Մէջբերումներ",
+    "loadingImages": "Նկարներու բեռնում...",
+    "loadingLinks": "Յղումներու բեռնում...",
+    "loadingCitations": "Մէջբերումներու բեռնում...",
+    "noImages": "Կապակցուած նկարներ չգտնուեցան",
+    "noLinks": "Կապակցուած յղումներ չգտնուեցան",
+    "noCitations": "Մէջբերումներ չգտնուեցան",
+    "poweredByGoogle": "Google Search-ի կողմէ աջակցուած"
+  },
+  "apiKey": {
+    "title": "API կարգաւորումներ",
+    "gemini": {
+      "title": "Gemini AI",
+      "label": "Gemini API բանալի",
+      "placeholder": "Ձեր Gemini API բանալին",
+      "getKeyLink": "Ինչպէս ստանալ Gemini API բանալի →"
+    },
+    "googleSearch": {
+      "title": "Google որոնում",
+      "apiKeyLabel": "Google Search API բանալի",
+      "apiKeyPlaceholder": "Ձեր Google Custom Search API բանալին",
+      "engineIdLabel": "Որոնման շարժիչի ID",
+      "engineIdPlaceholder": "Ձեր Custom Search Engine ID-ն",
+      "bothRequired": "Անհրաժեշտ են եւ API բանալին, եւ Search Engine ID-ն",
+      "successMessage": "Google Search API կարգաւորումները հաջողութեամբ պահպանուեցան",
+      "clearMessage": "Google Search API կարգաւորումները մաքրուեցան",
+      "errorMessage": "Google Search API կարգաւորումները սխալ են։ {{error}}",
+      "getApiKeyLink": "Ստանալ Google Custom Search API բանալի →",
+      "createEngineLink": "Ստեղծել Custom Search Engine →"
+    },
+    "save": "Պահպանել",
+    "clear": "Մաքրել",
+    "required": "Խնդրուում ենք մուտքագրել Gemini API բանալին",
+    "successMessage": "API բանալին հաջողութեամբ պահպանուեցաւ",
+    "clearMessage": "API բանալին մաքրուեցաւ",
+    "errorMessage": "API բանալին սխալ է։ {{error}}",
+    "validating": "Ստուգում...",
+    "storageInfo": "Բանալիները պահպանուում են ձեր զննարկչի localStorage-ում։"
+  },
+  "language": {
+    "select": "Ընտրել լեզու",
+    "current": "Ընթացիկ լեզու",
+    "languages": {
+      "hy": "Արեւելահայերէն",
+      "hyw": "Արեւմտահայերէն",
+      "en": "English",
+      "ru": "Русский"
+    }
+  },
+  "articleToolbar": {
+    "title": "Հոդուածի գործիքներ",
+    "selectAndExplain": "Ընտրել եւ բացատրել",
+    "keyPoints": "Հիմնական կէտեր",
+    "quiz": "Ստեղծել վիկտորինա",
+    "translate": "Թարգմանել",
+    "showOriginal": "Ցույց տալ բնօրինակը",
+    "translated": "Թարգմանուած",
+    "selectModeActive": "Ընտրէք տեքստ բացատրութիւն ստանալու համար"
+  },
+  "articleViewer": {
+    "errors": {
+      "apiKeyRequired": "Խնդրում ենք նախ մուտքագրել Gemini API բանալին։",
+      "noArticleSelected": "Խնդրում ենք նախ ընտրել հոդված։",
+      "explanationFailed": "Բացատրութիւնը բերելիս սխալ տեղի ունեցաւ։",
+      "keyPointsFailed": "Հիմնական կէտերը ստանալ չյաջողուեցաւ։",
+      "keyPointsError": "Հիմնական կէտերը բերելիս սխալ տեղի ունեցաւ։ ({{error}})",
+      "keyPointsTruncated": "Հիմնական կէտերու պատասխանը չափէն երկար էր ու կտրուեցաւ։ Խնդրում ենք փորձել աւելի կարճ հոդուածով։",
+      "contentNotAvailable": "Բովանդակութիւնը հասանելի չէ։",
+      "translationFailed": "Հոդուածի թարգմանութիւնը ձախողուեցաւ։",
+      "translationError": "Հոդուածի թարգմանութեան ժամանակ սխալ տեղի ունեցաւ։ ({{error}})"
+    },
+    "loading": {
+      "explanation": "Բացատրութիւնը բեռնուում է...",
+      "general": "Բեռնուում է...",
+      "keyPoints": "Հիմնական կէտերի բեռնում...",
+      "translation": "Հոդուածը թարգմանուում է...",
+      "translationDescription": "Պահպանուում է բնօրինակ ձևաչափումը եւ կառուցուածքը"
+    },
+    "noArticle": {
+      "title": "Ընտրէք հոդուած",
+      "message": "Ընտրէք հոդուած ձախ վահանակէն՝ բովանդակութիւնը դիտելու համար"
+    },
+    "buttons": {
+      "keyPoints": "Հիմնական կէտեր",
+      "quiz": "Վիկտորինա"
+    },
+    "hint": {
+      "title": "Հուշում:",
+      "message": "Ցանկացած տեքստ ընտրելով կրնաք ստանալ դրա բացատրութիւնը։"
+    },
+    "modals": {
+      "keyPointsTitle": "Հիմնական կէտեր"
+    },
+    "prompts": {
+      "keyPointsPrefix": "Հոդուածի ամբողջական տեքստը հետեւեալն է՝",
+      "keyPointsInstructions": "Խնդրում եմ այս հոդուածէն առանձնացրու հիմնական կէտերը (key points) արեւմտահայերէնով։ Ներկայացրու դրանք որպէս կարճ, հստակ կէտերի ցանկ։ Իւրաքանչիւր կէտ սկսիր նոր տողէն։"
+    }
+  },
+  "validation": {
+    "required": "Այս դաշտը պարտադիր է",
+    "invalidEmail": "Էլ. փոստի ֆորմատը սխալ է",
+    "minLength": "Նուազագոյնը {{count}} նիշ",
+    "maxLength": "Առաւելագոյնը {{count}} նիշ"
+  }
+}

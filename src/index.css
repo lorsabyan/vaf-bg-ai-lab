@@ -20,17 +20,8 @@
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
   }
-  
-  .btn-secondary {
+    .btn-secondary {
     @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
-  }
-  
-  .btn-success {
-    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500;
-  }
-  
-  .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
   
   .input {
@@ -82,16 +73,8 @@
   .quiz-option.correct {
     @apply border-emerald-500 bg-emerald-100;
   }
-  
-  .quiz-option.incorrect {
+    .quiz-option.incorrect {
     @apply border-red-500 bg-red-100;
   }
-  
-  .slide-up-enter {
-    @apply translate-y-full opacity-0;
-  }
-  
-  .slide-up-enter-active {
-    @apply translate-y-0 opacity-100 transition-all duration-300;
-  }
 }
+

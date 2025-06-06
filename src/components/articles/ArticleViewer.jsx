@@ -1,36 +1,70 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import articleService from '../../services/articleService';
 import quizService from '../../services/quizService';
+import googleSearchService from '../../services/googleSearchService';
+import { validateGeminiApiKey } from '../../utils/apiHelpers';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import EnhancedTooltip from '../ui/EnhancedTooltip';
 import QuizModal from '../quiz/QuizModal';
 import QuizInterfacePage from '../quiz/QuizInterfacePage';
+import ArticleToolbar from './ArticleToolbar';
 
-function ArticleViewer() {
+const ArticleViewer = React.memo(function ArticleViewer() {
+  const { t, i18n } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [isExplaining, setIsExplaining] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [showTooltip, setShowTooltip] = useState(false);
   const [explanation, setExplanation] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [showKeyPointsModal, setShowKeyPointsModal] = useState(false);
   const [keyPoints, setKeyPoints] = useState('');
   const [isLoadingKeyPoints, setIsLoadingKeyPoints] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState(null);
+  const [isShowingTranslation, setIsShowingTranslation] = useState(false);
+  const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
   
   const articleRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const formattedContent = state.selectedArticle ? 
-    articleService.formatArticleContent(state.selectedArticle) : null;
+  // Memoize expensive article formatting operation
+  const formattedContent = useMemo(() => {
+    return state.selectedArticle ? 
+      articleService.formatArticleContent(state.selectedArticle) : null;
+  }, [state.selectedArticle]);
+
+  // Memoize content for AI operations to avoid recalculation
+  const contentForAI = useMemo(() => {
+    return isShowingTranslation ? 
+      (translatedContent ? translatedContent.replace(/<[^>]*>/g, '') : '') : 
+      (formattedContent?.plainText || '');
+  }, [isShowingTranslation, translatedContent, formattedContent?.plainText]);
 
   useEffect(() => {
     setShowTooltip(false);
     setSelectedText('');
     setExplanation('');
+    setTranslatedContent(null);
+    setIsShowingTranslation(false);
+    setIsSelectMode(false);
+    setKeyPoints(''); // Clear key points when article changes
   }, [state.selectedArticle]);
 
-  const handleTextSelection = async () => {
+  // Clear key points when translation state changes
+  useEffect(() => {
+    setKeyPoints('');
+  }, [isShowingTranslation]);
+
+  // Memoize the text selection handler to prevent unnecessary re-renders
+  const handleTextSelection = useCallback(async () => {
+    if (!isSelectMode) return;
+    
     const selection = window.getSelection();
     const selectedTerm = selection.toString().trim();
     
@@ -39,11 +73,7 @@ function ArticleViewer() {
       return;
     }
 
-    if (!state.apiKeys.gemini) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ մուտքագրել Gemini API բանալին։'
-      });
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       return;
     }
 
@@ -57,41 +87,80 @@ function ArticleViewer() {
     });
     setShowTooltip(true);
     setIsExplaining(true);
-    setExplanation('Բացատրությունը բեռնվում է...');
+    setSearchResults(null);
+    setIsLoadingSearch(false); // Initialize to false
+    setExplanation(t('articleViewer.loading.explanation'));
+
+    // Start both AI explanation and Google search concurrently
+    const promises = [];
+
+    // AI Explanation      
+    promises.push(
+      quizService.explainTerm(
+        selectedTerm,
+        contentForAI,
+        state.apiKeys.gemini,
+        state.selectedLanguage
+      )
+    );
+
+    // Google Search (if configured)
+    
+    if (state.apiKeys.googleSearch && state.googleSearchEngineId) {
+      setIsLoadingSearch(true);
+      googleSearchService.initializeAPI(state.apiKeys.googleSearch, state.googleSearchEngineId);
+      
+      // Pass article context to improve search relevance
+      const articleContext = contentForAI ? contentForAI.substring(0, 2000) : ''; // First 2000 chars for context
+      
+      promises.push(
+        googleSearchService.searchAll(selectedTerm, state.selectedLanguage, articleContext)
+      );
+    }
 
     try {
-      const result = await quizService.explainTerm(
-        selectedTerm,
-        formattedContent?.plainText || '',
-        state.apiKeys.gemini
-      );
-
-      if (result.success) {
-        setExplanation(result.data);
+      const results = await Promise.allSettled(promises);
+      
+      // Handle AI explanation result
+      const explanationResult = results[0];
+      if (explanationResult.status === 'fulfilled' && explanationResult.value.success) {
+        setExplanation(explanationResult.value.data);
       } else {
-        setExplanation(`<span class="text-red-600">${result.error}</span>`);
+        const error = explanationResult.status === 'fulfilled' ? 
+          explanationResult.value.error : 
+          explanationResult.reason?.message || 'Unknown error';
+        setExplanation(`<span class="text-red-600">${error}</span>`);
       }
+
+      // Handle Google search result (if available)
+      if (results.length > 1) {
+        const searchResult = results[1];
+        if (searchResult.status === 'fulfilled' && searchResult.value.success) {
+          setSearchResults(searchResult.value);
+        }
+      }
+      
+      // Always reset loading state
+      setIsLoadingSearch(false);
+
     } catch (error) {
-      setExplanation(`<span class="text-red-600">Բացատրությունը բերելիս սխալ տեղի ունեցավ։</span>`);
+      setExplanation(`<span class="text-red-600">${t('articleViewer.errors.explanationFailed')}</span>`);
     } finally {
       setIsExplaining(false);
     }
-  };
+  }, [isSelectMode, state, dispatch, ActionTypes, t, contentForAI]);
 
-  const handleGetKeyPoints = async () => {
+  // Memoize the key points generation handler
+  const handleGetKeyPoints = useCallback(async () => {
     if (!formattedContent?.plainText) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ ընտրել հոդված։'
+        payload: t('articleViewer.errors.noArticleSelected')
       });
       return;
     }
 
-    if (!state.apiKeys.gemini) {
-      dispatch({
-        type: ActionTypes.SET_ERROR,
-        payload: 'Խնդրում ենք նախ մուտքագրել Gemini API բանալին։'
-      });
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       return;
     }
 
@@ -99,28 +168,41 @@ function ArticleViewer() {
     setIsLoadingKeyPoints(true);
     setKeyPoints('');
 
-    const promptText = `Հոդվածի ամբողջական տեքստը հետևյալն է՝
+    const contentToAnalyze = isShowingTranslation && translatedContent ? 
+      translatedContent.replace(/<[^>]*>/g, '') : 
+      formattedContent.plainText;
+
+    const targetLanguage = t(`language.languages.${state.selectedLanguage}`);
+    
+    const promptText = `Extract the key points from the following article and present them in ${targetLanguage}.
+
+REQUIREMENTS:
+1. Provide 5-8 main key points
+2. Write each point as a complete sentence
+3. Use clear and concise language in ${targetLanguage}
+4. Focus on the most important information
+5. Format as a bullet list
+
+Article content:
 ---
-${formattedContent.plainText}
+${contentToAnalyze}
 ---
-Խնդրում եմ այս հոդվածից առանձնացրու հիմնական կետերը (key points) հայերենով։ Ներկայացրու դրանք որպես կարճ, հստակ կետերի ցանկ։ Յուրաքանչյուր կետ սկսիր նոր տողից։`;
+
+Please provide the key points in ${targetLanguage}, formatted as a bullet list with clear, informative sentences.`;
 
     try {
       if (!quizService.genAI) {
         quizService.initializeAPI(state.apiKeys.gemini);
       }
 
-      const generativeModel = quizService.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-      
-      const result = await generativeModel.generateContent({
+      const generativeModel = quizService.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
         generationConfig: { 
           temperature: 0.4,
-          maxOutputTokens: 1000,
         },
-      });
-
-      const response = await result.response;
+      });      const response = await result.response;
+      
       let keyPointsText = response.text();
 
       if (keyPointsText) {
@@ -131,24 +213,126 @@ ${formattedContent.plainText}
           '</ul>';
         setKeyPoints(htmlKeyPoints);
       } else {
-        setKeyPoints('<p class="text-red-600">Հիմնական կետերը ստանալ չհաջողվեց։</p>');
+        setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsFailed')}</p>`);
       }
     } catch (error) {
       console.error('Error getting key points:', error);
-      setKeyPoints(`<p class="text-red-600">Հիմնական կետերը բերելիս սխալ տեղի ունեցավ։ (${error.message})</p>`);
+      setKeyPoints(`<p class="text-red-600">${t('articleViewer.errors.keyPointsError', { error: error.message })}</p>`);
     } finally {
       setIsLoadingKeyPoints(false);
     }
-  };
-  const handleClickOutside = (event) => {
+  }, [formattedContent?.plainText, dispatch, ActionTypes, t, state, isShowingTranslation, translatedContent]);
+  
+  // Memoize the translation handler
+  const handleTranslate = useCallback(async () => {
+    if (!formattedContent?.html) {
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: t('articleViewer.errors.noArticleSelected')
+      });
+      return;
+    }
+
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
+      return;
+    }
+
+    // If already showing translation, toggle back to original
+    if (isShowingTranslation) {
+      setIsShowingTranslation(false);
+      return;
+    }
+
+    // If translation already exists, show it
+    if (translatedContent) {
+      setIsShowingTranslation(true);
+      return;
+    }
+
+    setIsLoadingTranslation(true);
+
+    try {
+      if (!quizService.genAI) {
+        quizService.initializeAPI(state.apiKeys.gemini);
+      }
+
+      const generativeModel = quizService.genAI.getGenerativeModel({ 
+        model: 'gemini-2.5-flash-preview-05-20' 
+      });
+
+      // Enhanced translation prompt with detailed instructions
+      const translationPrompt = `You are a professional translator with expertise in preserving HTML formatting. Your task is to translate the following article content to ${t(`language.languages.${state.selectedLanguage}`)}.
+
+CRITICAL REQUIREMENTS:
+1. Maintain ALL HTML tags, attributes, and structure exactly as they appear
+2. Only translate the text content within HTML tags
+3. Preserve all class names, IDs, styles, and attributes
+4. Keep HTML entities and special characters intact
+5. Maintain the exact spacing and formatting structure
+6. Do not add any markdown formatting or extra tags
+7. Translate naturally while preserving the original meaning and tone
+
+Article content to translate:
+${formattedContent.html}
+
+Please provide the translation with the exact same HTML structure, translating only the text content within the tags.`;
+
+      const result = await generativeModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: translationPrompt }] }],
+        generationConfig: { 
+          temperature: 0.1,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 8192
+        },
+      });
+
+      const response = await result.response;
+      let translatedText = response.text();
+
+      if (translatedText) {
+        // Clean up response (remove markdown formatting if present)
+        translatedText = translatedText.replace(/^```html\s*|\s*```$/g, '');
+        translatedText = translatedText.replace(/^```\s*|\s*```$/g, '');
+        
+        // Validate that the response contains HTML
+        if (translatedText.includes('<') && translatedText.includes('>')) {
+          setTranslatedContent(translatedText);
+          setIsShowingTranslation(true);
+        } else {
+          throw new Error('Translation response does not contain valid HTML');
+        }
+      } else {
+        throw new Error('Empty translation response');
+      }
+    } catch (error) {
+      console.error('Error translating article:', error);
+      dispatch({
+        type: ActionTypes.SET_ERROR,
+        payload: t('articleViewer.errors.translationError', { error: error.message })
+      });
+    } finally {
+      setIsLoadingTranslation(false);
+    }
+  }, [formattedContent?.html, dispatch, ActionTypes, t, state, isShowingTranslation, translatedContent]);
+  
+  // Memoize simple event handlers
+  const handleSelectAndExplain = useCallback((enabled) => {
+    setIsSelectMode(enabled);
+    if (!enabled) {
+      setShowTooltip(false);
+    }
+  }, []);
+
+  const handleClickOutside = useCallback((event) => {
     if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
       setShowTooltip(false);
     }
-  };
+  }, []);
 
-  const handleBackToArticle = () => {
+  const handleBackToArticle = useCallback(() => {
     dispatch({ type: ActionTypes.HIDE_QUIZ_INTERFACE });
-  };
+  }, [dispatch, ActionTypes]);
 
   const handleQuizCompleted = (results) => {
     // Quiz results are handled by QuizInterface component
@@ -163,7 +347,7 @@ ${formattedContent.plainText}
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showTooltip]);
+  }, [showTooltip, handleClickOutside]);
   if (!state.selectedArticle) {
     return (
       <div className="h-full flex items-center justify-center bg-white">
@@ -172,10 +356,10 @@ ${formattedContent.plainText}
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Ընտրեք հոդված
+            {t('articleViewer.noArticle.title')}
           </h3>
           <p className="text-gray-500">
-            Ընտրեք հոդված ձախ վահանակից՝ բովանդակությունը դիտելու համար
+            {t('articleViewer.noArticle.message')}
           </p>
         </div>
       </div>
@@ -196,48 +380,17 @@ ${formattedContent.plainText}
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Article Header */}
-      <div className="border-b border-gray-200 p-4 bg-gray-50">        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold text-gray-900 line-clamp-2">
-            {state.selectedArticle.mainTitle || state.selectedArticle.shortTitle}
-          </h2>
-          <div className="flex items-center space-x-2 flex-shrink-0 ml-4">
-            <Button
-              onClick={handleGetKeyPoints}
-              variant="outline"
-              size="sm"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-              Հիմնական կետեր
-            </Button>            <Button
-              onClick={() => dispatch({ type: ActionTypes.SHOW_QUIZ_MODAL })}
-              variant="primary"
-              size="sm"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Վիկտորինա
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <span>ID: {state.selectedArticle.id}</span>
-          {state.selectedArticle.categoryName && (
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-              {state.selectedArticle.categoryName}
-            </span>
-          )}
-        </div>
-        
-        <p className="text-sm text-amber-700 bg-amber-50 p-3 rounded-md mt-3 border border-amber-200">
-          💡 <strong>Հուշում:</strong> Ցանկացած տեքստ ընտրելով կարող եք ստանալ դրա բացատրությունը։
-        </p>
-      </div>
-
+      {/* Article Toolbar */}
+      <ArticleToolbar
+        onSelectAndExplain={handleSelectAndExplain}
+        onKeyPoints={handleGetKeyPoints}
+        onQuizGeneration={() => dispatch({ type: ActionTypes.SHOW_QUIZ_MODAL })}
+        onTranslateArticle={handleTranslate}
+        isSelectMode={isSelectMode}
+        isShowingTranslation={isShowingTranslation}
+        isLoadingTranslation={isLoadingTranslation}
+      />
+      
       {/* Article Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto p-6">
@@ -246,46 +399,31 @@ ${formattedContent.plainText}
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-sky-600 prose-strong:text-gray-900"
             onMouseUp={handleTextSelection}
             dangerouslySetInnerHTML={{ 
-              __html: formattedContent?.html || '<p>Բովանդակությունը հասանելի չէ։</p>' 
+              __html: (isShowingTranslation && translatedContent) ? 
+                translatedContent : 
+                (formattedContent?.html || `<p>${t('articleViewer.errors.contentNotAvailable')}</p>`)
             }}
           />
         </div>
       </div>
 
-      {/* Tooltip for explanations */}
+      {/* Enhanced Tooltip for explanations */}
       {showTooltip && (
-        <div
-          ref={tooltipRef}
-          className="fixed bg-white border border-gray-300 rounded-lg shadow-xl p-4 max-w-xs z-50 transform -translate-x-1/2"
-          style={{
-            left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`,
-          }}
-        >
-          <div className="text-sm">
-            <div className="font-semibold text-gray-900 mb-2 border-b pb-1">
-              {selectedText}
-            </div>
-            <div 
-              className="text-gray-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: explanation }}
-            />
-            {isExplaining && (
-              <div className="flex items-center mt-2 text-sky-600">
-                <svg className="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span className="text-xs">Բեռնվում է...</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <EnhancedTooltip
+          selectedText={selectedText}
+          explanation={explanation}
+          isExplaining={isExplaining}
+          position={tooltipPosition}
+          searchResults={searchResults}
+          isLoadingSearch={isLoadingSearch}
+          isGoogleSearchConfigured={!!(state.apiKeys.googleSearch && state.googleSearchEngineId)}
+          onClose={() => setShowTooltip(false)}
+        />
       )}      {/* Key Points Modal */}
       <Modal
         isOpen={showKeyPointsModal}
         onClose={() => setShowKeyPointsModal(false)}
-        title="Հիմնական կետեր"
+        title={`${t('articleViewer.modals.keyPointsTitle')}${isShowingTranslation ? ` (${t(`language.languages.${state.selectedLanguage}`)})` : ''}`}
         size="lg"
       >
         <div className="p-6">
@@ -295,7 +433,7 @@ ${formattedContent.plainText}
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span className="text-gray-600">Հիմնական կետերի բեռնում...</span>
+              <span className="text-gray-600">{t('articleViewer.loading.keyPoints')}</span>
             </div>
           ) : (
             <div 
@@ -310,6 +448,6 @@ ${formattedContent.plainText}
       <QuizModal />
     </div>
   );
-}
+});
 
 export default ArticleViewer;

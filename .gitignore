@@ -8,6 +8,8 @@ pnpm-debug.log*
 # Production builds
 /build
 /dist
+/.next/
+/out/
 
 # Runtime data
 pids

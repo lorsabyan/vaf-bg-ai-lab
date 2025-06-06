@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import quizService from '../../services/quizService';
 import articleService from '../../services/articleService';
 import { GEMINI_MODELS, DEFAULT_QUIZ_INSTRUCTIONS, QUIZ_TEMPLATES } from '../../utils/constants';
+import { validateGeminiApiKey } from '../../utils/apiHelpers';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import QuizInterface from './QuizInterface';
 import ApiKeyModal from '../common/ApiKeyModal';
 
 function QuizGenerator({ onQuizGenerate }) {
+  const { t } = useTranslation();
   const { state, dispatch, ActionTypes } = useApp();
   const [isGenerating, setIsGenerating] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -20,7 +23,19 @@ function QuizGenerator({ onQuizGenerate }) {
   const [temperature, setTemperature] = useState(0.7);
   const [selectedTemplate, setSelectedTemplate] = useState('ARMENIAN_COMPREHENSIVE');
 
-  const handleTemplateChange = (templateKey) => {
+  // Memoize the current quiz template
+  const currentTemplate = useMemo(() => {
+    return QUIZ_TEMPLATES[selectedTemplate];
+  }, [selectedTemplate]);
+
+  // Memoize the formatted article content to avoid recalculation
+  const formattedContent = useMemo(() => {
+    return state.selectedArticle ? 
+      articleService.formatArticleContent(state.selectedArticle) : null;
+  }, [state.selectedArticle]);
+
+  // Memoize the template change handler
+  const handleTemplateChange = useCallback((templateKey) => {
     setSelectedTemplate(templateKey);
     const template = QUIZ_TEMPLATES[templateKey];
     if (template) {
@@ -28,11 +43,12 @@ function QuizGenerator({ onQuizGenerate }) {
       setSelectedModel(template.model);
       setTemperature(template.temperature);
     }
-  };
+  }, []);
 
-  const handleGenerateQuiz = async () => {
+  // Memoize the quiz generation handler
+  const handleGenerateQuiz = useCallback(async () => {
     // Check if API key is available
-    if (!state.apiKeys.gemini) {
+    if (!validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       setShowApiKeyModal(true);
       return;
     }
@@ -41,7 +57,7 @@ function QuizGenerator({ onQuizGenerate }) {
     if (!state.selectedArticle) {
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: 'Please select an article first from the Article Search tab.'
+        payload: t('quiz.errors.noArticleSelected')
       });
       return;
     }
@@ -49,13 +65,12 @@ function QuizGenerator({ onQuizGenerate }) {
     setIsGenerating(true);
       try {
       // Initialize the quiz service with API key
-      quizService.initializeAPI(state.apiKeys.gemini);      // Get the formatted article content
-      const formattedContent = articleService.formatArticleContent(state.selectedArticle);
+      quizService.initializeAPI(state.apiKeys.gemini);      
       
       if (!formattedContent || !formattedContent.html) {
         dispatch({
           type: ActionTypes.SET_ERROR,
-          payload: 'Selected article has no content available for quiz generation.'
+          payload: t('quiz.errors.noArticleSelected')
         });
         setIsGenerating(false);
         return;
@@ -74,14 +89,14 @@ function QuizGenerator({ onQuizGenerate }) {
         
         dispatch({
           type: ActionTypes.SET_SUCCESS,
-          payload: `Quiz generated successfully with ${result.data.questions.length} questions!`
+          payload: t('quiz.errors.quizGeneratedSuccess', { count: result.data.questions.length })
         });
 
         if (onQuizGenerate) {
           onQuizGenerate();
         }
       } else {
-        const errorMessage = result.error || 'Failed to generate quiz. Please try again.';
+        const errorMessage = result.error || t('quiz.errors.generationFailed');
         dispatch({
           type: ActionTypes.SET_ERROR,
           payload: errorMessage
@@ -91,12 +106,12 @@ function QuizGenerator({ onQuizGenerate }) {
       console.error('Quiz generation error:', error);
       dispatch({
         type: ActionTypes.SET_ERROR,
-        payload: error.message || 'Failed to generate quiz. Please check your API key and try again.'
+        payload: error.message || t('quiz.errors.generationError')
       });
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [state, dispatch, ActionTypes, t, formattedContent, instructions, selectedModel, temperature, onQuizGenerate]);
 
   const handleQuizComplete = (results) => {
     // Save quiz results to history
@@ -121,7 +136,7 @@ function QuizGenerator({ onQuizGenerate }) {
     
     dispatch({
       type: ActionTypes.SET_SUCCESS,
-      payload: `Quiz completed! Score: ${results.score}/${results.totalQuestions}`
+      payload: t('quiz.errors.quizCompletedSuccess', { score: results.score, total: results.totalQuestions })
     });
   };
 
@@ -133,7 +148,7 @@ function QuizGenerator({ onQuizGenerate }) {
   const handleApiKeySave = () => {
     setShowApiKeyModal(false);
     // Try generating quiz again if API key was just saved
-    if (state.apiKeys.gemini) {
+    if (validateGeminiApiKey(state, dispatch, ActionTypes, t)) {
       handleGenerateQuiz();
     }
   };
@@ -153,30 +168,32 @@ function QuizGenerator({ onQuizGenerate }) {
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Վիկտորինա ստեղծել
+          {t('quiz.generator.title')}
         </h2>
         <p className="text-sm text-gray-600">
-          Create AI-powered quizzes from selected articles
+          {t('quiz.generator.subtitle')}
         </p>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">        {/* Article Status */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">Selected Article</h3>
+          <h3 className="font-medium text-gray-900 mb-2">{t('quiz.generator.selectedArticle')}</h3>
           {state.selectedArticle ? (
             <div className="text-sm">
               <p className="font-medium text-green-700">{state.selectedArticle.mainTitle || state.selectedArticle.shortTitle}</p>
               <p className="text-gray-600 mt-1">
-                Content available: {(() => {
-                  const formattedContent = articleService.formatArticleContent(state.selectedArticle);
-                  return formattedContent?.plainText?.length || 0;
-                })()} characters
+                {t('quiz.generator.contentAvailable', { 
+                  count: (() => {
+                    const formattedContent = articleService.formatArticleContent(state.selectedArticle);
+                    return formattedContent?.plainText?.length || 0;
+                  })()
+                })}
               </p>
             </div>
           ) : (
             <p className="text-sm text-amber-600">
-              No article selected. Please select an article from the Article Search tab first.
+              {t('quiz.generator.noArticleSelected')}
             </p>
           )}
         </div>
@@ -184,7 +201,7 @@ function QuizGenerator({ onQuizGenerate }) {
         {/* Quiz Template */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Quiz Template
+            {t('quiz.generator.quizTemplate')}
           </label>
           <select
             value={selectedTemplate}
@@ -202,21 +219,21 @@ function QuizGenerator({ onQuizGenerate }) {
         {/* Custom Instructions */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Custom Instructions
+            {t('quiz.generator.customInstructions')}
           </label>
           <textarea
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-            placeholder="Enter custom instructions for quiz generation..."
+            placeholder={t('quiz.generator.instructionsPlaceholder')}
           />
         </div>
 
         {/* AI Model Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            AI Model
+            {t('quiz.generator.aiModel')}
           </label>
           <select
             value={selectedModel}
@@ -234,7 +251,7 @@ function QuizGenerator({ onQuizGenerate }) {
         {/* Temperature Control */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Creativity Level (Temperature): {temperature}
+            {t('quiz.generator.creativityLevel', { temperature })}
           </label>
           <input
             type="range"
@@ -246,9 +263,9 @@ function QuizGenerator({ onQuizGenerate }) {
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Conservative (0.0)</span>
-            <span>Balanced (0.5)</span>
-            <span>Creative (1.0)</span>
+            <span>{t('quiz.generator.conservative')}</span>
+            <span>{t('quiz.generator.balanced')}</span>
+            <span>{t('quiz.generator.creative')}</span>
           </div>
         </div>
 
@@ -260,7 +277,7 @@ function QuizGenerator({ onQuizGenerate }) {
                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               <p className="text-sm text-yellow-800">
-                Gemini API key required for quiz generation
+                {t('quiz.generator.apiKeyRequired')}
               </p>
             </div>
             <Button
@@ -269,7 +286,7 @@ function QuizGenerator({ onQuizGenerate }) {
               className="mt-2"
               onClick={() => setShowApiKeyModal(true)}
             >
-              Set API Key
+              {t('quiz.generator.setApiKey')}
             </Button>
           </div>
         )}
@@ -286,10 +303,10 @@ function QuizGenerator({ onQuizGenerate }) {
           {isGenerating ? (
             <div className="flex items-center">
               <LoadingSpinner size="sm" />
-              <span className="ml-2">Generating Quiz...</span>
+              <span className="ml-2">{t('quiz.generator.generatingQuiz')}</span>
             </div>
           ) : (
-            'Generate Quiz'
+            t('quiz.generator.generateQuiz')
           )}
         </Button>
       </div>

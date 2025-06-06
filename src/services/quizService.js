@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { API_CONFIG, QUIZ_JSON_SCHEMA } from '../utils/constants';
+import { API_CONFIG, getQuizJsonSchema, QUIZ_INSTRUCTIONS_BY_LANGUAGE, DEFAULT_QUIZ_INSTRUCTIONS, EXPLANATION_PROMPTS_BY_LANGUAGE, EXPLANATION_ERROR_MESSAGES } from '../utils/constants';
 
 class QuizService {
   constructor() {
@@ -24,8 +24,9 @@ class QuizService {
     const {
       instructions,
       articleContent,
-      model = 'gemini-2.0-flash',
+      model = 'gemini-2.5-flash-preview-05-20',
       temperature = 0.7,
+      targetLanguage = 'en'
     } = options;
 
     if (!this.genAI) {
@@ -44,25 +45,30 @@ class QuizService {
       throw new Error('Article content is not properly formatted. Please try selecting a different article.');
     }
 
-    const fullPrompt = `${instructions}\n\nOpenAPI JSON scheme\n---\n${JSON.stringify(QUIZ_JSON_SCHEMA, null, 2)}\n\nHTML article\n---\n${articleContent}`;
+    // Get language-specific instructions and schema
+    const languageConfig = QUIZ_INSTRUCTIONS_BY_LANGUAGE[targetLanguage] || QUIZ_INSTRUCTIONS_BY_LANGUAGE.hy;
+    const quizSchema = getQuizJsonSchema(targetLanguage);
+    
+    // Use language-specific instructions if available, otherwise use provided instructions
+    const finalInstructions = instructions === DEFAULT_QUIZ_INSTRUCTIONS ? 
+      languageConfig.instructions : 
+      `${instructions}\n\nGenerate the quiz in ${languageConfig.language}.`;
+
+    const fullPrompt = `${finalInstructions}\n\nOpenAPI JSON scheme\n---\n${JSON.stringify(quizSchema, null, 2)}\n\nHTML article\n---\n${articleContent}`;
 
     try {
       const generativeModel = this.genAI.getGenerativeModel({ model });
-      
-      const result = await generativeModel.generateContent({
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
         generationConfig: { 
           temperature,
-          maxOutputTokens: 4096,
         },
-      });
-
-      const response = await result.response;
+      });      const response = await result.response;
       let rawTextOutput = response.text();
 
       if (!rawTextOutput) {
         throw new Error('No response generated from Gemini API.');
-      }      // Clean up the JSON response
+      }// Clean up the JSON response
       let cleanJsonString = rawTextOutput.trim();
       
       // Check if the response is an error message instead of JSON
@@ -132,33 +138,29 @@ class QuizService {
     }
   }
 
-  async explainTerm(term, context, apiKey) {
+  async explainTerm(term, context, apiKey, targetLanguage = 'hy') {
     if (!apiKey) {
-      throw new Error('Gemini API բանալին տրամադրված չէ։');
+      const errorMessages = EXPLANATION_ERROR_MESSAGES[targetLanguage] || EXPLANATION_ERROR_MESSAGES.hy;
+      throw new Error(errorMessages.apiKeyRequired);
     }
 
     if (!this.genAI) {
       this.initializeAPI(apiKey);
     }
 
-    const promptText = `Հոդվածի ամբողջական տեքստը հետևյալն է՝
----
-${context}
----
-Հաշվի առնելով վերոնշյալ հոդվածի համատեքստը, խնդրում եմ բացատրիր «${term}» տերմինը կամ արտահայտությունը հայերենով։ Տուր հակիրճ և հասկանալի բացատրություն։ Պատասխանը ֆորմատավորիր **միայն որպես HTML**։ **Մի՛ ներառիր որևէ նախաբան կամ վերջաբան, այլ միայն բացատրությունը։ Մի՛ օգտագործիր markdown:** Օգտագործիր <strong> թեգը թավատառի համար, <em> թեգը շեղատառի համար, և <br> թեգը տողադարձերի համար։`;
+    // Get language-specific prompt configuration
+    const languageConfig = EXPLANATION_PROMPTS_BY_LANGUAGE[targetLanguage] || EXPLANATION_PROMPTS_BY_LANGUAGE.hy;
+    const promptText = languageConfig.promptTemplate(term, context);
 
     try {
-      const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-      
-      const result = await generativeModel.generateContent({
+      const generativeModel = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
+        const result = await generativeModel.generateContent({
         contents: [{ role: "user", parts: [{ text: promptText }] }],
         generationConfig: { 
           temperature: 0.4,
-          maxOutputTokens: 300,
         },
-      });
-
-      const response = await result.response;
+      });      const response = await result.response;
+      
       let explanation = response.text();
 
       if (!explanation) {
@@ -179,15 +181,11 @@ ${context}
       
       explanation = explanation.trim();
 
-      // Remove common intro phrases
-      const introPhrasesToRemove = [
-        `Ահա «${term}» տերմինի բացատրությունը HTML ֆորմատով.`,
-        `Ահա «${term}» տերմինի բացատրությունը.`,
-        `Սա «${term}» տերմինի բացատրությունն է HTML ֆորմատով.`,
-        `Սա «${term}» տերմինի բացատրությունն է.`
-      ];
+      // Remove common intro phrases based on target language
+      const cleanupPhrases = languageConfig.getCleanupPhrases ? 
+        languageConfig.getCleanupPhrases(term) : [];
       
-      for (const phrase of introPhrasesToRemove) {
+      for (const phrase of cleanupPhrases) {
         if (explanation.toLowerCase().startsWith(phrase.toLowerCase())) {
           explanation = explanation.substring(phrase.length).trim();
           while (explanation.toLowerCase().startsWith("<br>")) {
@@ -203,12 +201,14 @@ ${context}
       };
     } catch (error) {
       console.error('Error explaining term:', error);
+      const errorMessages = EXPLANATION_ERROR_MESSAGES[targetLanguage] || EXPLANATION_ERROR_MESSAGES.hy;
       return {
         success: false,
-        error: `Բացատրությունը բերելիս սխալ տեղի ունեցավ։ (${error.message})`,
+        error: `${errorMessages.explanationFailed} (${error.message})`,
       };
     }
   }
 }
 
-export default new QuizService();
+const quizService = new QuizService();
+export default quizService;

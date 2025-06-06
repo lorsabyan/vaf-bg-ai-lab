@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import Button from '../ui/Button';
-import { getArmenianDifficulty } from '../../utils/constants';
+import { DIFFICULTY_MAPPINGS } from '../../utils/constants';
+import { useApp } from '../../context/AppContext';
 
 const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
+  const { t } = useTranslation();
+  const { state } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -10,9 +14,50 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
   const [questionFeedback, setQuestionFeedback] = useState({}); // Track feedback for each question
   const [checkedQuestions, setCheckedQuestions] = useState({}); // Track which questions have been checked
 
-  const currentQuestion = quiz?.questions?.[currentQuestionIndex];
-  const totalQuestions = quiz?.questions?.length || 0;
-  const handleAnswerSelect = (answerIndex) => {
+  // Memoize difficulty mappings to avoid recalculation
+  const difficultyMappings = useMemo(() => {
+    return DIFFICULTY_MAPPINGS[state.selectedLanguage] || DIFFICULTY_MAPPINGS.hy;
+  }, [state.selectedLanguage]);
+
+  // Memoize the difficulty text helper function
+  const getDifficultyText = useCallback((difficulty) => {
+    // If difficulty is already in the target language, return it
+    if (Object.values(difficultyMappings).includes(difficulty)) {
+      return difficulty;
+    }
+    
+    // Try to find the corresponding difficulty in current language
+    // Check if difficulty matches any English values and map to current language
+    const englishMappings = DIFFICULTY_MAPPINGS.en;
+    for (const [key, englishValue] of Object.entries(englishMappings)) {
+      if (englishValue.toLowerCase() === difficulty.toLowerCase()) {
+        return difficultyMappings[key];
+      }
+    }
+    
+    // Check if difficulty matches any Armenian values and map to current language
+    const armenianMappings = DIFFICULTY_MAPPINGS.hy;
+    for (const [key, armenianValue] of Object.entries(armenianMappings)) {
+      if (armenianValue === difficulty) {
+        return difficultyMappings[key];
+      }
+    }
+    
+    // If no match found, return as is
+    return difficulty;
+  }, [difficultyMappings]);
+
+  // Memoize current question and quiz metadata
+  const currentQuestion = useMemo(() => {
+    return quiz?.questions?.[currentQuestionIndex];
+  }, [quiz?.questions, currentQuestionIndex]);
+  
+  const totalQuestions = useMemo(() => {
+    return quiz?.questions?.length || 0;
+  }, [quiz?.questions?.length]);
+  
+  // Memoize event handlers to prevent unnecessary re-renders
+  const handleAnswerSelect = useCallback((answerIndex) => {
     setAnswers(prev => ({
       ...prev,
       [currentQuestionIndex]: answerIndex
@@ -25,8 +70,9 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         [currentQuestionIndex]: null
       }));
     }
-  };
-  const handleCheckAnswer = () => {
+  }, [currentQuestionIndex, checkedQuestions]);
+  
+  const handleCheckAnswer = useCallback(() => {
     const userAnswer = answers[currentQuestionIndex];
     const correctAnswer = currentQuestion.answer;
     const isCorrect = userAnswer === correctAnswer;
@@ -47,22 +93,11 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         isAnswered: userAnswer !== undefined
       }
     }));
-  };
-  const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      calculateScore();
-    }
-  };
+  }, [answers, currentQuestionIndex, currentQuestion?.answer]);
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const calculateScore = () => {    let correctAnswers = 0;
+  // Memoize calculateScore function
+  const calculateScore = useCallback(() => {
+    let correctAnswers = 0;
     quiz.questions.forEach((question, index) => {
       if (answers[index] === question.answer) {
         correctAnswers++;
@@ -77,7 +112,21 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
     if (onComplete) {
       onComplete({ score: calculatedScore, answers, totalQuestions });
     }
-  };
+  }, [quiz?.questions, answers, totalQuestions, onComplete]);
+
+  const handleNext = useCallback(() => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      calculateScore();
+    }
+  }, [currentQuestionIndex, totalQuestions, calculateScore]);
+
+  const handlePrevious = useCallback(() => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  }, [currentQuestionIndex]);
 
   const currentFeedback = questionFeedback[currentQuestionIndex];
   const isQuestionChecked = checkedQuestions[currentQuestionIndex];
@@ -91,13 +140,13 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Վիկտորինայի սխալ
+            {t('quiz.interfacePage.quizError')}
           </h3>
           <p className="text-gray-500 mb-4">
-            Վիկտորինայի հարցեր հասանելի չեն։
+            {t('quiz.interfacePage.noQuestionsMessage')}
           </p>
           <Button onClick={onBack} variant="outline">
-            Վերադառնալ հոդվածին
+            {t('quiz.interfacePage.backToArticle')}
           </Button>
         </div>
       </div>
@@ -111,21 +160,21 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         <div className="border-b border-gray-200 p-4 bg-gray-50">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">
-              Վիկտորինայի արդյունքներ
+              {t('quiz.interfacePage.quizResults')}
             </h2>
             <div className="flex items-center space-x-2">
               <Button onClick={onBack} variant="outline" size="sm">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Վերադառնալ հոդվածին
+                {t('quiz.interfacePage.backToArticle')}
               </Button>
               {onGenerateNew && (
                 <Button onClick={onGenerateNew} variant="primary" size="sm">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Նոր վիկտորինա
+                  {t('quiz.interfacePage.newQuiz')}
                 </Button>
               )}
             </div>
@@ -145,19 +194,24 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                   {score}%
                 </div>
                 <p className="text-xl text-gray-600">
-                  {score >= 80 ? 'Գերազանց!' : 
-                   score >= 60 ? 'Լավ արդյունք!' : 'Շարունակեք պարապել!'}
+                  {score >= 80 ? t('quiz.interfacePage.excellent') : 
+                   score >= 60 ? t('quiz.interfacePage.goodJob') : t('quiz.interfacePage.keepPracticing')}
                 </p>
-              </div>              <p className="text-gray-600">
-                Դուք ճիշտ պատասխանել եք {Object.values(answers).filter((answer, index) => 
-                  answer === quiz.questions[index]?.answer
-                ).length} հարցի {totalQuestions}-ից։
+              </div>
+              
+              <p className="text-gray-600">
+                {t('quiz.interfacePage.scoreMessage', {
+                  correct: Object.values(answers).filter((answer, index) => 
+                    answer === quiz.questions[index]?.answer
+                  ).length,
+                  total: totalQuestions
+                })}
               </p>
             </div>
 
             {/* Detailed Results */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Մանրամասն արդյունքներ</h3>              {quiz.questions.map((question, index) => {
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quiz.interfacePage.detailedResults')}</h3>              {quiz.questions.map((question, index) => {
                 const userAnswer = answers[index];
                 const isCorrect = userAnswer === question.answer;
                 
@@ -182,10 +236,10 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                                 <span><strong>{String.fromCharCode(65 + optIndex)}.</strong> {option}</span>
                                 <div className="flex items-center space-x-2">
                                   {optIndex === question.answer && (
-                                    <span className="text-green-600 font-medium">✓ Ճիշտ պատասխան</span>
+                                    <span className="text-green-600 font-medium">{t('quiz.interfacePage.correctAnswerLabel')}</span>
                                   )}
                                   {optIndex === userAnswer && !isCorrect && (
-                                    <span className="text-red-600 font-medium">Ձեր պատասխանը</span>
+                                    <span className="text-red-600 font-medium">{t('quiz.interfacePage.yourAnswerLabel')}</span>
                                   )}
                                 </div>
                               </div>
@@ -211,17 +265,20 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">
-              {quiz.title || 'Վիկտորինա'}
+              {quiz.title || t('quiz.interfacePage.quiz')}
             </h2>
             <p className="text-sm text-gray-600">
-              Հարց {currentQuestionIndex + 1} / {totalQuestions}
+              {t('quiz.interfacePage.questionNumber', { 
+                current: currentQuestionIndex + 1, 
+                total: totalQuestions 
+              })}
             </p>
           </div>
           <Button onClick={onBack} variant="outline" size="sm">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            Փակել
+            {t('quiz.interfacePage.close')}
           </Button>
         </div>
 
@@ -244,7 +301,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
             </h3>            {/* Difficulty Display */}
             {currentQuestion?.difficulty && (
               <p className="text-sm text-gray-500 mb-4">
-                <span className="font-medium">Բարդություն:</span> {getArmenianDifficulty(currentQuestion.difficulty)}
+                <span className="font-medium">{t('quiz.interfacePage.difficulty')}</span> {getDifficultyText(currentQuestion.difficulty)}
               </p>
             )}<div className="space-y-3">
               {currentQuestion?.options?.map((option, index) => {
@@ -311,7 +368,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                     </div><span className="text-gray-900 flex-1">
                       {option}
                       {isQuestionChecked && isCorrect && (
-                        <span className="ml-2 text-green-600 font-medium">✓ Ճիշտ պատասխան</span>
+                        <span className="ml-2 text-green-600 font-medium">{t('quiz.interfacePage.correctAnswerLabel')}</span>
                       )}
                     </span>
                   </label>
@@ -330,7 +387,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                Ստուգել պատասխանը
+                {t('quiz.interfacePage.checkAnswer')}
               </button>
             )}
 
@@ -346,15 +403,18 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                 {currentFeedback.isAnswered ? (
                   currentFeedback.isCorrect ? (
                     <div className="text-green-700">
-                      <strong>Ճիշտ է!</strong>
-                    </div>                ) : (
+                      <strong>{t('quiz.interfacePage.correctFeedback')}</strong>
+                    </div>
+                ) : (
                   <div className="text-red-700">
-                    <strong>Սխալ է:</strong> Ճիշտ պատասխանն էր՝ "{currentQuestion.options[currentFeedback.correctAnswer]}"
+                    <strong>{t('quiz.interfacePage.incorrectFeedback', { 
+                      correct: currentQuestion.options[currentFeedback.correctAnswer] 
+                    })}</strong>
                   </div>
                 )
               ) : (
                   <div className="text-yellow-700">
-                    <strong>Պատասխանված չէ:</strong> Խնդրում ենք ընտրել պատասխան։
+                    <strong>{t('quiz.interfacePage.notAnsweredFeedback')}</strong>
                   </div>
                 )}
                 
@@ -362,7 +422,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                 {currentQuestion?.explanation && (
                   <div className="mt-3 p-3 bg-gray-100 rounded-md border-l-4 border-gray-400">
                     <div className="text-gray-700 text-sm">
-                      <strong>Բացատրություն:</strong> {currentQuestion.explanation}
+                      <strong>{t('quiz.interfacePage.explanation')}</strong> {currentQuestion.explanation}
                     </div>
                   </div>
                 )}
@@ -383,7 +443,7 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Նախորդ
+            {t('quiz.interfacePage.previous')}
           </Button>
 
           <Button
@@ -396,11 +456,11 @@ const QuizInterfacePage = ({ quiz, onBack, onComplete, onGenerateNew }) => {
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Ավարտել վիկտորինան
+                {t('quiz.interfacePage.finishQuiz')}
               </>
             ) : (
               <>
-                Հաջորդ
+                {t('quiz.interfacePage.next')}
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

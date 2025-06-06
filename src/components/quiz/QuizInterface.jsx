@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../../context/AppContext';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 
 const QuizInterface = ({ quiz, onComplete, onClose }) => {
+  const { t } = useTranslation();
   const { dispatch, ActionTypes } = useApp();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -44,22 +46,21 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
     const calculatedScore = Math.round((correctAnswers / totalQuestions) * 100);
     setScore(calculatedScore);
     setShowResults(true);
-  };
-  const handleFinish = () => {
+  };  const handleFinish = () => {
     onComplete({ score, answers, totalQuestions });
     dispatch({ 
-      type: ActionTypes.SET_SUCCESS, 
-      payload: 'Quiz completed successfully!' 
+      type: ActionTypes.SET_SUCCESS,
+      payload: t('quiz.errors.completionSuccess')
     });
   };
 
   if (!quiz || !quiz.questions || quiz.questions.length === 0) {
     return (
-      <Modal isOpen={true} onClose={onClose} title="Quiz Error">
+      <Modal isOpen={true} onClose={onClose} title={t('quiz.interface.quizError')}>
         <div className="p-6 text-center">
-          <p className="text-gray-600 mb-4">No quiz questions available.</p>
+          <p className="text-gray-600 mb-4">{t('quiz.interface.noQuestionsAvailable')}</p>
           <Button onClick={onClose} variant="outline">
-            Close
+            {t('quiz.interface.close')}
           </Button>
         </div>
       </Modal>
@@ -68,7 +69,7 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
 
   if (showResults) {
     return (
-      <Modal isOpen={true} onClose={onClose} title="Quiz Results" size="lg">
+      <Modal isOpen={true} onClose={onClose} title={t('quiz.interface.results')} size="lg">
         <div className="p-6">
           <div className="text-center mb-8">
             <div className="mb-4">
@@ -79,13 +80,16 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
                 {score}%
               </div>
               <p className="text-xl text-gray-600">
-                {score >= 80 ? 'Excellent!' : 
-                 score >= 60 ? 'Good job!' : 'Keep practicing!'}
+                {score >= 80 ? t('quiz.interface.excellent') : 
+                 score >= 60 ? t('quiz.interface.goodJob') : t('quiz.interface.keepPracticing')}
               </p>
             </div>            <p className="text-gray-600 mb-6">
-              You answered {Object.values(answers).filter((answer, index) => 
-                answer === quiz.questions[index]?.answer
-              ).length} out of {totalQuestions} questions correctly.
+              {t('quiz.interface.correctAnswers', { 
+                correct: Object.values(answers).filter((answer, index) => 
+                  answer === quiz.questions[index]?.answer
+                ).length,
+                total: totalQuestions
+              })}
             </p>
           </div>
 
@@ -105,7 +109,8 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
                       <p className="font-medium text-gray-900 mb-2">
                         {index + 1}. {question.question}
                       </p>
-                      <div className="space-y-1 text-sm">                        {question.options.map((option, optIndex) => (
+                      <div className="space-y-1 text-sm">
+                        {question.options.map((option, optIndex) => (
                           <div key={optIndex} className={`p-2 rounded ${
                             optIndex === question.answer ? 'bg-green-100 text-green-800' :
                             optIndex === userAnswer && !isCorrect ? 'bg-red-100 text-red-800' :
@@ -113,7 +118,7 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
                           }`}>
                             {String.fromCharCode(65 + optIndex)}. {option}
                             {optIndex === question.answer && ' ✓'}
-                            {optIndex === userAnswer && !isCorrect && ' (Your answer)'}
+                            {optIndex === userAnswer && !isCorrect && ` ${t('quiz.interface.yourAnswer')}`}
                           </div>
                         ))}
                       </div>
@@ -126,10 +131,10 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
 
           <div className="flex gap-3 justify-end">
             <Button onClick={onClose} variant="outline">
-              Close
+              {t('quiz.interface.close')}
             </Button>
             <Button onClick={handleFinish}>
-              Save Results
+              {t('quiz.interface.saveResults')}
             </Button>
           </div>
         </div>
@@ -143,8 +148,8 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
-            <span>{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}% Complete</span>
+            <span>{t('quiz.interface.questionProgress', { current: currentQuestionIndex + 1, total: totalQuestions })}</span>
+            <span>{t('quiz.interface.percentComplete', { percent: Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100) })}</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
@@ -206,18 +211,18 @@ const QuizInterface = ({ quiz, onComplete, onClose }) => {
             disabled={currentQuestionIndex === 0}
             variant="outline"
           >
-            Previous
+            {t('quiz.interface.previous')}
           </Button>
 
           <div className="flex gap-3">
             <Button onClick={onClose} variant="outline">
-              Cancel
+              {t('quiz.interface.cancel')}
             </Button>
             <Button
               onClick={handleNext}
               disabled={answers[currentQuestionIndex] === undefined}
             >
-              {currentQuestionIndex === totalQuestions - 1 ? 'Finish Quiz' : 'Next Question'}
+              {currentQuestionIndex === totalQuestions - 1 ? t('quiz.interface.finishQuiz') : t('quiz.interface.nextQuestion')}
             </Button>
           </div>
         </div>
