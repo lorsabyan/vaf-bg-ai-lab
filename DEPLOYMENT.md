@@ -103,9 +103,21 @@ Make sure your repository's GitHub Pages settings are configured to:
 2. **Build Failures**: 
    - **Next.js**: Check that `basePath` and `assetPrefix` are correctly configured
    - **Create React App**: Check that `homepage` is set in package.json
-   - **ESLint Issues**: The script automatically fixes common ESLint config conflicts
+   - **ESLint Issues**: The script automatically fixes common ESLint config conflicts between Next.js and CRA
 3. **Deployment Issues**: Verify that the repository has proper permissions for GitHub Actions
 4. **Mixed Project Types**: The deployment system handles both Next.js and CRA projects automatically
+
+### Common ESLint Errors
+
+If you see errors like:
+```
+Failed to load config "next/core-web-vitals" to extend from.
+```
+
+This happens when a Create React App project has Next.js ESLint configuration. The deployment scripts now automatically:
+- Replace `.eslintrc.json` with CRA-compatible configuration
+- Remove `next.config.js` and `next-env.d.ts` files when building CRA projects
+- Set appropriate `homepage` in `package.json` for static deployment
 
 ## Notes
 

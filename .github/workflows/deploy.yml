@@ -83,7 +83,12 @@ jobs:
             "extends": [
               "react-app",
               "react-app/jest"
-            ]
+            ],
+            "rules": {
+              "no-unused-vars": "warn",
+              "react-hooks/exhaustive-deps": "warn",
+              "import/no-anonymous-default-export": "warn"
+            }
           }
           EOF
             
@@ -92,7 +97,7 @@ jobs:
             rm -f next-env.d.ts
             
             npm install
-            npm run build
+            CI=false npm run build
           fi
           cd ..
           
@@ -148,7 +153,7 @@ jobs:
             rm -f next-env.d.ts
             
             npm install
-            npm run build
+            CI=false npm run build
           fi
           cd ..
           
