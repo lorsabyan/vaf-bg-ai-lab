@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/vaf-bg-ai-lab/static/css/main.a35e22f6.css",
+    "main.js": "/vaf-bg-ai-lab/static/js/main.81a80e34.js",
+    "index.html": "/vaf-bg-ai-lab/index.html",
+    "main.a35e22f6.css.map": "/vaf-bg-ai-lab/static/css/main.a35e22f6.css.map",
+    "main.81a80e34.js.map": "/vaf-bg-ai-lab/static/js/main.81a80e34.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a35e22f6.css",
+    "static/js/main.81a80e34.js"
+  ]
+}
